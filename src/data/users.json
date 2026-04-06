@@ -1,0 +1,98 @@
+[
+  {
+    "id": "usr_001",
+    "companyId": "cmp_001",
+    "fullName": "Sarah Ahmed",
+    "email": "sarah@carehorizons.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 111 001",
+    "role": "company_admin",
+    "status": "active",
+    "createdAt": "2026-01-10T09:05:00.000Z",
+    "updatedAt": "2026-01-10T09:05:00.000Z"
+  },
+  {
+    "id": "usr_002",
+    "companyId": "cmp_001",
+    "fullName": "Liam Johnson",
+    "email": "liam@carehorizons.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 111 002",
+    "role": "support_worker",
+    "status": "active",
+    "createdAt": "2026-01-12T10:00:00.000Z",
+    "updatedAt": "2026-01-12T10:00:00.000Z"
+  },
+  {
+    "id": "usr_003",
+    "companyId": "cmp_001",
+    "fullName": "Emma Clarke",
+    "email": "emma@carehorizons.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 111 003",
+    "role": "support_worker",
+    "status": "active",
+    "createdAt": "2026-01-12T10:15:00.000Z",
+    "updatedAt": "2026-01-12T10:15:00.000Z"
+  },
+  {
+    "id": "usr_004",
+    "companyId": "cmp_001",
+    "fullName": "Noah Baker",
+    "email": "noah@carehorizons.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 111 004",
+    "role": "coordinator",
+    "status": "active",
+    "createdAt": "2026-01-15T08:45:00.000Z",
+    "updatedAt": "2026-01-15T08:45:00.000Z"
+  },
+  {
+    "id": "usr_005",
+    "companyId": "cmp_001",
+    "fullName": "Olivia White",
+    "email": "olivia@carehorizons.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 111 005",
+    "role": "manager",
+    "status": "active",
+    "createdAt": "2026-01-15T08:55:00.000Z",
+    "updatedAt": "2026-01-15T08:55:00.000Z"
+  },
+  {
+    "id": "usr_006",
+    "companyId": "cmp_002",
+    "fullName": "Daniel Foster",
+    "email": "daniel@brightpathsupport.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 222 001",
+    "role": "company_admin",
+    "status": "active",
+    "createdAt": "2026-02-15T11:45:00.000Z",
+    "updatedAt": "2026-02-15T11:45:00.000Z"
+  },
+  {
+    "id": "usr_007",
+    "companyId": "cmp_002",
+    "fullName": "Ava Nguyen",
+    "email": "ava@brightpathsupport.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 222 002",
+    "role": "support_worker",
+    "status": "active",
+    "createdAt": "2026-02-18T09:00:00.000Z",
+    "updatedAt": "2026-02-18T09:00:00.000Z"
+  },
+  {
+    "id": "usr_008",
+    "companyId": "cmp_002",
+    "fullName": "Harper Hall",
+    "email": "harper@brightpathsupport.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "phone": "0400 222 003",
+    "role": "coordinator",
+    "status": "active",
+    "createdAt": "2026-02-20T10:30:00.000Z",
+    "updatedAt": "2026-02-20T10:30:00.000Z"
+  }
+]

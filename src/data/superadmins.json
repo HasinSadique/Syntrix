@@ -1,0 +1,11 @@
+[
+  {
+    "id": "sup_001",
+    "name": "Syntrix Platform Admin",
+    "email": "superadmin@syntrix.com",
+    "password": "$2b$10$GvliudP5JVE9Fq3q3pe5leUwzV7ZGpywl/CJe6jq3GJfcK.vygilK",
+    "role": "superadmin",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  }
+]

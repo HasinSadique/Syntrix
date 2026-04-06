@@ -1,0 +1,35 @@
+[
+  {
+    "id": "note_001",
+    "companyId": "cmp_001",
+    "participantId": "prt_001",
+    "workerId": "usr_002",
+    "noteTitle": "Morning routine support",
+    "noteDetails": "Participant completed morning routine with verbal prompts and positive engagement.",
+    "serviceDate": "2026-03-20",
+    "createdAt": "2026-03-20T11:20:00.000Z",
+    "updatedAt": "2026-03-20T11:20:00.000Z"
+  },
+  {
+    "id": "note_002",
+    "companyId": "cmp_001",
+    "participantId": "prt_002",
+    "workerId": "usr_003",
+    "noteTitle": "Community outing",
+    "noteDetails": "Visited local community centre and completed social activity with peers.",
+    "serviceDate": "2026-03-22",
+    "createdAt": "2026-03-22T13:45:00.000Z",
+    "updatedAt": "2026-03-22T13:45:00.000Z"
+  },
+  {
+    "id": "note_003",
+    "companyId": "cmp_002",
+    "participantId": "prt_004",
+    "workerId": "usr_007",
+    "noteTitle": "Medication reminder follow-up",
+    "noteDetails": "Medication schedule reviewed; no missed doses reported.",
+    "serviceDate": "2026-03-21",
+    "createdAt": "2026-03-21T10:30:00.000Z",
+    "updatedAt": "2026-03-21T10:30:00.000Z"
+  }
+]
