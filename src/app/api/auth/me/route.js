@@ -1,5 +1,12 @@
-import { authController } from "@/backend/controllers/authController";
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/backend/auth/guards";
 
-export async function GET(request) {
-  return authController.me(request);
+export async function GET() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return NextResponse.json({ user: null }, { status: 401 });
+  }
+
+  return NextResponse.json({ user });
 }

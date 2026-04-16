@@ -1,84 +1,105 @@
-import { repositories } from "@/backend/repositories";
-import { sendEmail } from "@/backend/services/emailService";
-import { emailSubjects } from "@/backend/emails/helpers/emailSubjects";
+import { connectToDatabase } from "@/backend/db/mongoose";
+import { Incident, Participant, Shift } from "@/backend/models";
+import { createAuditLog } from "@/backend/services/auditLogService";
+import {
+  ensureEntityInCompany,
+  resolvePagination,
+  resolveRequiredCompanyId,
+  resolveTenantFilter,
+  toObjectId,
+  toPlainDocument
+} from "@/backend/services/_serviceUtils";
 
-const { incidentRepository, userRepository, participantRepository, companyRepository } = repositories;
+export async function listIncidents({ currentUser, query }) {
+  await connectToDatabase();
 
-export const incidentService = {
-  async listIncidents(companyId, currentUser) {
-    if (currentUser.role === "support_worker") {
-      return incidentRepository.listIncidentsByWorker(companyId, currentUser.userId);
-    }
-    return incidentRepository.listIncidentsByCompany(companyId);
-  },
+  const { page, limit } = resolvePagination(query.page, query.limit);
+  const filter = {
+    ...resolveTenantFilter(currentUser, query.companyId, {
+      requireCompanyForSuperAdmin: true
+    })
+  };
 
-  async createIncident(companyId, currentUser, payload) {
-    const { participantId, incidentType, severity, description, incidentDate, status = "open" } = payload;
-    if (!participantId || !incidentType || !severity || !description || !incidentDate) {
-      const error = new Error("Missing required incident fields");
-      error.status = 400;
-      throw error;
-    }
+  if (query.participantId) {
+    filter.participantId = toObjectId(query.participantId, "participantId");
+  }
 
-    if (currentUser.role === "support_worker") {
-      const assignments = await repositories.assignmentRepository.listAssignmentsByWorker(
-        companyId,
-        currentUser.userId,
-      );
-      const assignedParticipantIds = new Set(assignments.map((assignment) => assignment.participantId));
-      if (!assignedParticipantIds.has(participantId)) {
-        const error = new Error("You can only submit incidents for assigned participants");
-        error.status = 403;
-        throw error;
+  if (query.severity) {
+    filter.severity = query.severity;
+  }
+
+  if (query.status) {
+    filter.status = query.status;
+  }
+
+  const [total, items] = await Promise.all([
+    Incident.countDocuments(filter),
+    Incident.find(filter)
+      .sort({ reportedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("participantId", "firstName lastName ndisNumber")
+      .populate("reportedByUserId", "firstName lastName email")
+      .populate("shiftId", "shiftDate startTime endTime")
+      .lean()
+  ]);
+
+  return {
+    items,
+    total,
+    page,
+    limit
+  };
+}
+
+export async function createIncident({ currentUser, payload }) {
+  await connectToDatabase();
+
+  const companyId = resolveRequiredCompanyId(currentUser, payload.companyId);
+
+  await ensureEntityInCompany({
+    model: Participant,
+    entityId: payload.participantId,
+    companyId,
+    label: "participant"
+  });
+
+  if (payload.shiftId) {
+    await ensureEntityInCompany({
+      model: Shift,
+      entityId: payload.shiftId,
+      companyId,
+      label: "shift"
+    });
+  }
+
+  const incident = await Incident.create({
+    companyId,
+    shiftId: payload.shiftId ? toObjectId(payload.shiftId, "shiftId") : undefined,
+    participantId: toObjectId(payload.participantId, "participantId"),
+    reportedByUserId: toObjectId(currentUser.id, "userId"),
+    severity: payload.severity,
+    category: payload.category,
+    description: payload.description,
+    actionTaken: payload.actionTaken,
+    status: payload.status,
+    reportedAt: payload.reportedAt || new Date()
+  });
+
+  await createAuditLog({
+    currentUser,
+    payload: {
+      companyId: companyId.toString(),
+      action: "incident.create",
+      entityType: "incident",
+      entityId: incident._id.toString(),
+      newValue: {
+        participantId: payload.participantId,
+        severity: payload.severity,
+        status: payload.status
       }
     }
+  });
 
-    const incident = await incidentRepository.createIncident({
-      companyId,
-      participantId,
-      workerId: currentUser.userId,
-      incidentType,
-      severity,
-      description,
-      incidentDate,
-      status,
-    });
-
-    const company = await companyRepository.getCompanyById(companyId);
-    const participant = await participantRepository.getParticipantById(participantId);
-    const worker = await userRepository.getUserById(currentUser.userId);
-    const users = await userRepository.listUsersByCompany(companyId);
-    const admins = users.filter((user) => user.role === "company_admin" && user.status === "active");
-
-    await Promise.all(
-      admins.map((admin) =>
-        sendEmail({
-          to: admin.email,
-          subject: emailSubjects.incidentAlert,
-          templateName: "incidentAlert",
-          data: {
-            companyName: company?.companyName,
-            participantName: participant?.fullName,
-            workerName: worker?.fullName,
-            incidentType,
-            severity,
-            description,
-          },
-        }),
-      ),
-    );
-
-    return incident;
-  },
-
-  async updateIncidentStatus(companyId, incidentId, status) {
-    const incidents = await incidentRepository.listIncidentsByCompany(companyId);
-    const existing = incidents.find((incident) => incident.id === incidentId);
-    if (!existing) {
-      const error = new Error("Incident not found");
-      error.status = 404;
-      throw error;
-    }
-    return incidentRepository.updateIncident(incidentId, { status });
-  },
-};
+  return toPlainDocument(incident);
+}

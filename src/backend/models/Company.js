@@ -1,20 +1,53 @@
 import mongoose from "mongoose";
 
-const CompanySchema = new mongoose.Schema(
+const companySchema = new mongoose.Schema(
   {
-    companyName: { type: String, required: true, trim: true },
-    abn: { type: String, default: "" },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    phone: { type: String, required: true },
-    address: { type: String, required: true },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 120
+    },
+    abn: {
+      type: String,
+      trim: true,
+      required: true,
+      unique: true
+    },
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    address: {
+      type: String,
+      trim: true
+    },
+    state: {
+      type: String,
+      enum: ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"],
+      required: true
+    },
     status: {
       type: String,
-      enum: ["active", "suspended", "pending_review"],
+      enum: ["active", "inactive", "suspended"],
       default: "active",
-    },
-    createdBy: { type: String, default: "self_registration" },
+      index: true
+    }
   },
-  { timestamps: true, versionKey: false },
+  {
+    timestamps: true
+  }
 );
 
-export default mongoose.models.Company || mongoose.model("Company", CompanySchema);
+companySchema.index({ name: 1 });
+companySchema.index({ state: 1, status: 1 });
+
+export const Company =
+  mongoose.models.Company || mongoose.model("Company", companySchema);

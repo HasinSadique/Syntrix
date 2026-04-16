@@ -1,15 +1,60 @@
 import mongoose from "mongoose";
 
-const AssignmentSchema = new mongoose.Schema(
+const assignmentSchema = new mongoose.Schema(
   {
-    companyId: { type: String, required: true, index: true },
-    participantId: { type: String, required: true, index: true },
-    workerId: { type: String, required: true, index: true },
-    assignedBy: { type: String, required: true },
-    assignedDate: { type: String, required: true },
-    status: { type: String, enum: ["active", "completed"], default: "active" },
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+      index: true
+    },
+    participantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Participant",
+      required: true,
+      index: true
+    },
+    workerUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+    coordinatorUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+    startDate: {
+      type: Date,
+      required: true
+    },
+    endDate: {
+      type: Date,
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ["active", "paused", "completed", "cancelled"],
+      default: "active",
+      index: true
+    }
   },
-  { timestamps: true, versionKey: false },
+  {
+    timestamps: true
+  }
 );
 
-export default mongoose.models.Assignment || mongoose.model("Assignment", AssignmentSchema);
+assignmentSchema.pre("validate", function validateDateRange() {
+  if (this.startDate && this.endDate && this.endDate < this.startDate) {
+    throw new Error("endDate must be after or equal to startDate");
+  }
+});
+
+assignmentSchema.index({ companyId: 1, participantId: 1, status: 1 });
+assignmentSchema.index({ companyId: 1, workerUserId: 1, status: 1 });
+assignmentSchema.index({ companyId: 1, startDate: -1 });
+
+export const Assignment =
+  mongoose.models.Assignment || mongoose.model("Assignment", assignmentSchema);

@@ -1,48 +1,46 @@
 {
   "name": "syntrix",
   "version": "1.0.0",
+  "description": "Syntrix - Multi-tenant SaaS platform for NDIS providers",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "seed": "node --env-file=.env.local scripts/seed.js"
   },
   "keywords": [
-    "ndis",
-    "multi-tenant",
     "nextjs",
+    "saas",
+    "ndis",
     "syntrix"
   ],
-  "author": "",
+  "author": "Syntrix",
   "license": "MIT",
-  "description": "Syntrix multi-tenant NDIS operations platform prototype",
   "dependencies": {
-    "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-label": "^2.1.8",
-    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
-    "axios": "^1.14.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "cookie": "^1.1.1",
-    "jose": "^6.2.2",
     "jsonwebtoken": "^9.0.3",
-    "lucide-react": "^1.7.0",
+    "lucide-react": "^1.8.0",
     "mongoose": "^9.4.1",
-    "next": "^16.2.2",
-    "nodemailer": "^8.0.4",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "tailwind-merge": "^3.5.0"
+    "next": "^16.2.3",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4.2.2",
-    "autoprefixer": "^10.4.27",
+    "autoprefixer": "^10.5.0",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.2",
-    "postcss": "^8.5.8",
+    "eslint-config-next": "^16.2.3",
+    "postcss": "^8.5.9",
     "tailwindcss": "^4.2.2"
   }
 }

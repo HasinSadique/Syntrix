@@ -1,12 +1,22 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
-
-const config = [
-  ...nextVitals,
+export default [
   {
-    rules: {
-      "react-hooks/set-state-in-effect": "off",
-    },
+    ignores: ["node_modules/**", ".next/**", "dist/**", "coverage/**"]
   },
+  {
+    files: ["**/*.{js,jsx,mjs}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
+    rules: {
+      "no-console": "off",
+      "no-undef": "off",
+      "no-unused-vars": "off"
+    }
+  }
 ];
-
-export default config;

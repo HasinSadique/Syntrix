@@ -1,14 +1,88 @@
 # Syntrix
 
-Syntrix is a multi-tenant NDIS operations management prototype built with Next.js App Router.
+Production-style multi-tenant SaaS for Australian NDIS providers.
 
-It supports:
-- Public landing page and company registration
-- JWT cookie auth with role-aware routing
-- Superadmin workspace for platform-wide company oversight
-- Company workspace for staff, participants, assignments, notes, and incidents
-- Backend email architecture with reusable templates/services
-- Data source switching between dummy JSON repositories and MongoDB repositories
+## Tech stack
+
+- Next.js App Router
+- React
+- JavaScript
+- Tailwind CSS
+- shadcn-style UI primitives
+- MongoDB + Mongoose
+- JWT auth (HTTP-only cookie)
+- Zod validation
+
+## Run locally
+
+```bash
+npm install
+npm run seed
+npm run dev
+```
+
+## Demo credentials
+
+- Email: `superadmin@syntrix.com`
+- Password: `Password123!`
+
+## Initial architecture
+
+```text
+src/
+  app/
+    (auth)/login/
+    (app)/dashboard/
+    (app)/participants/
+    (app)/workers/
+    (app)/roster/
+    (app)/compliance/
+    (app)/documents/
+    (app)/companies/
+    api/auth/{login,logout,me}/
+  backend/
+    auth/
+    config/
+    constants/
+    db/
+    models/
+    services/
+    validators/
+  components/
+    common/
+    dashboard/
+    layout/
+    providers/
+    theme/
+    ui/
+  frontend/
+    navigation/
+  lib/
+scripts/
+  seed.js
+```
+
+## Current scope implemented
+
+- Tenant-ready data models (first batch): `Company`, `Role`, `User`, `WorkerProfile`, `Participant`
+- Authentication route handlers (`/api/auth/login`, `/api/auth/logout`, `/api/auth/me`)
+- Route protection via middleware + server guards
+- Role-aware sidebar navigation
+- Dashboard foundation with dark/light mode toggle
+- UI placeholders for Roster, Compliance, and Documents (S3 deferred intentionally)
+# Syntrix
+
+Syntrix is a multi-tenant NDIS operations management prototype built with Next.js App Router and MongoDB.
+
+This version is **MongoDB-only** (dummy data and dummy repositories removed).
+
+It includes:
+- Public landing + auth
+- Role-based workspaces (`superadmin`, `company_admin`, `state_manager`, `support_worker`)
+- Company, staff, participant, roster/assignment, notes, incidents
+- Budgets and performance insights
+- Worker availability and clock logs
+- Platform/company audit logs with log type filtering
 
 ## Tech Stack
 
@@ -25,27 +99,14 @@ It supports:
 
 ## Architecture
 
-The app follows a layered backend design:
+Layered backend design:
 
 - **API routes** call controllers only
 - **Controllers** orchestrate request/response concerns
 - **Services** contain business logic
 - **Repositories** handle data access
-- **Config** handles DB/auth/mailer/data source
-- **Dummy JSON** lives in `src/data`
+- **Config** handles DB/auth/mailer
 - **Mongo models/repositories** live in `src/backend/models` and `src/backend/repositories/mongo`
-
-This allows the same services/controllers to work with either data source.
-
-## Data Source Switching
-
-Switching is centralized in `src/backend/config/dataSource.js` and `src/backend/repositories/index.js`.
-
-Rule:
-- If `MONGODB_URI` exists and is not empty -> use Mongo repositories
-- If `MONGODB_URI` is empty -> use dummy repositories backed by JSON files in `src/data`
-
-No service/controller code changes are needed when switching.
 
 ## Multi-Tenancy
 
@@ -54,12 +115,26 @@ No service/controller code changes are needed when switching.
 - API guards enforce role and company scoping
 - Middleware protects routes and redirects by role
 
-## Demo Credentials (Dummy Mode)
+## Key Business Rules Implemented
 
-All demo accounts use password: `Password123!`
+- One active `state_manager` per state (per company)
+- Participant can have max **3 support workers per 24 hours**
+- Support worker can work max **8 hours per 24 hours**
+- Support workers can set availability and view schedules
+- Support worker hourly rate is view-only for support workers
+- Assignments support `chargePerHour` for participant billing
+- Participant budget fields (`totalBudget`, `allocatedBudget`, `availableBudget`)
+- Audit trail in `logs` collection with `logType` on each record
+
+## Seeded Credentials (via API)
+
+After running seed endpoint, all seeded accounts use:
+
+- Password: `Password123!`
 
 - **Superadmin**: `superadmin@syntrix.com`
 - **Company Admin (Care Horizons)**: `sarah@carehorizons.com`
+- **State Manager (Care Horizons NSW)**: `noah@carehorizons.com`
 - **Support Worker (Care Horizons)**: `liam@carehorizons.com`
 - **Company Admin (Bright Path Support)**: `daniel@brightpathsupport.com`
 
@@ -111,9 +186,17 @@ src/
     controllers/
     emails/
     utils/
-  data/
 middleware.js
 ```
+
+## API Highlights
+
+- Auth: `/api/auth/*`, `/api/superadmin/login`
+- Core: `/api/companies`, `/api/users`, `/api/participants`, `/api/assignments`, `/api/notes`, `/api/incidents`
+- Workforce: `/api/availability`, `/api/clock`
+- Insights: `/api/insights/company`, `/api/insights/state-managers`, `/api/insights/participants`, `/api/insights/support-workers`
+- Audit: `/api/logs?logType=...`
+- Dev seed: `POST /api/setup/seed`
 
 ## Run Locally
 
@@ -122,14 +205,16 @@ middleware.js
 2. Copy environment template:
    - `cp .env.example .env.local`
 3. Set at least:
+   - `MONGODB_URI=...`
+   - `MONGO_DB_NAME=syntrix` (or your preferred database name)
    - `JWT_SECRET=your-secret`
 4. Start development server:
    - `npm run dev`
+5. Seed initial Mongo data (development only):
+   - `POST http://localhost:3000/api/setup/seed`
 
-## Enable MongoDB Later
+## Notes
 
-When ready:
-1. Set `MONGODB_URI` in `.env.local`
-2. Restart server
-
-Syntrix will automatically switch from dummy JSON repositories to MongoDB repositories.
+- Seeding route is blocked in production.
+- Logs are written for key write actions and auth events.
+- Superadmin can manage cross-company data by passing `companyId` where needed.

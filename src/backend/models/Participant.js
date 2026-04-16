@@ -1,20 +1,74 @@
 import mongoose from "mongoose";
 
-const ParticipantSchema = new mongoose.Schema(
+const participantSchema = new mongoose.Schema(
   {
-    companyId: { type: String, required: true, index: true },
-    fullName: { type: String, required: true, trim: true },
-    ndisNumber: { type: String, required: true, trim: true },
-    dateOfBirth: { type: String, required: true },
-    gender: { type: String, default: "other" },
-    phone: { type: String, required: true },
-    address: { type: String, required: true },
-    emergencyContactName: { type: String, required: true },
-    emergencyContactPhone: { type: String, required: true },
-    supportNeeds: { type: String, required: true },
-    status: { type: String, enum: ["active", "inactive"], default: "active" },
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+      index: true
+    },
+    firstName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    dob: {
+      type: Date,
+      required: true
+    },
+    gender: {
+      type: String,
+      enum: ["female", "male", "non_binary", "other", "prefer_not_to_say"],
+      default: "prefer_not_to_say"
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    address: {
+      type: String,
+      trim: true
+    },
+    emergencyContact: {
+      name: { type: String, trim: true },
+      phone: { type: String, trim: true },
+      relationship: { type: String, trim: true }
+    },
+    ndisNumber: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    state: {
+      type: String,
+      enum: ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"],
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "on_hold", "discharged"],
+      default: "active",
+      index: true
+    }
   },
-  { timestamps: true, versionKey: false },
+  {
+    timestamps: true
+  }
 );
 
-export default mongoose.models.Participant || mongoose.model("Participant", ParticipantSchema);
+participantSchema.virtual("fullName").get(function fullName() {
+  return `${this.firstName} ${this.lastName}`;
+});
+
+participantSchema.index({ companyId: 1, ndisNumber: 1 }, { unique: true });
+participantSchema.index({ companyId: 1, state: 1, status: 1 });
+participantSchema.index({ companyId: 1, lastName: 1, firstName: 1 });
+
+export const Participant =
+  mongoose.models.Participant || mongoose.model("Participant", participantSchema);

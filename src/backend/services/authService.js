@@ -1,159 +1,63 @@
-import bcrypt from "bcryptjs";
-import { repositories } from "@/backend/repositories";
-import { sendEmail } from "@/backend/services/emailService";
-import { emailSubjects } from "@/backend/emails/helpers/emailSubjects";
+import { connectToDatabase } from "@/backend/db/mongoose";
+import { comparePassword } from "@/backend/auth/password";
+import { signAccessToken } from "@/backend/auth/jwt";
+import { ROLE_LABELS, ROLES } from "@/backend/constants/roles";
+import { Company, User } from "@/backend/models";
 
-const { companyRepository, userRepository, superAdminRepository } = repositories;
+export async function authenticateUser({ email, password }) {
+  await connectToDatabase();
 
-function sanitizeUser(user) {
-  if (!user) return null;
-  const { password, ...safeUser } = user;
-  return safeUser;
-}
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await User.findOne({
+    email: normalizedEmail,
+    status: "active"
+  })
+    .select("+passwordHash")
+    .populate("roleId", "name description permissions");
 
-export const authService = {
-  async registerCompany(payload) {
-    const {
-      companyName,
-      abn = "",
-      companyEmail,
-      phone,
-      address,
-      adminFullName,
-      adminEmail,
-      adminPassword,
-    } = payload;
+  if (!user) {
+    throw new Error("Invalid email or password");
+  }
 
-    if (
-      !companyName ||
-      !companyEmail ||
-      !phone ||
-      !address ||
-      !adminFullName ||
-      !adminEmail ||
-      !adminPassword
-    ) {
-      const error = new Error("Missing required registration fields");
-      error.status = 400;
-      throw error;
-    }
+  const isPasswordValid = await comparePassword(password, user.passwordHash);
 
-    const existingCompany = await companyRepository.getCompanyByEmail(companyEmail);
-    if (existingCompany) {
-      const error = new Error("Company email already exists");
-      error.status = 409;
-      throw error;
-    }
+  if (!isPasswordValid) {
+    throw new Error("Invalid email or password");
+  }
 
-    const existingAdmin = await userRepository.getUserByEmail(adminEmail);
-    if (existingAdmin) {
-      const error = new Error("Admin email already exists");
-      error.status = 409;
-      throw error;
-    }
+  if (!user.roleId?.name) {
+    throw new Error("User role assignment is invalid");
+  }
 
-    const company = await companyRepository.createCompany({
-      companyName,
-      abn,
-      email: companyEmail,
-      phone,
-      address,
-      status: "active",
-      createdBy: "self_registration",
-    });
-
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    const adminUser = await userRepository.createUser({
-      companyId: company.id,
-      fullName: adminFullName,
-      email: adminEmail,
-      password: hashedPassword,
-      phone,
-      role: "company_admin",
-      status: "active",
-    });
-
-    await sendEmail({
-      to: adminEmail,
-      subject: emailSubjects.companyWelcome,
-      templateName: "companyWelcome",
-      data: {
-        companyName,
-        adminName: adminFullName,
-        message: "Your company has been registered successfully.",
-      },
-    });
-
-    return {
-      company,
-      adminUser: sanitizeUser(adminUser),
-    };
-  },
-
-  async login({ email, password }) {
-    if (!email || !password) {
-      const error = new Error("Email and password are required");
-      error.status = 400;
-      throw error;
-    }
-
-    const user = await userRepository.getUserByEmail(email);
-    if (!user) {
-      const error = new Error("Invalid credentials");
-      error.status = 401;
-      throw error;
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      const error = new Error("Invalid credentials");
-      error.status = 401;
-      throw error;
-    }
-
-    if (user.status !== "active") {
-      const error = new Error("User account is inactive");
-      error.status = 403;
-      throw error;
-    }
-
-    const company = await companyRepository.getCompanyById(user.companyId);
+  if (user.roleId.name !== ROLES.SUPER_ADMIN) {
+    const company = await Company.findById(user.companyId).select("status").lean();
     if (!company || company.status !== "active") {
-      const error = new Error("Company is not active");
-      error.status = 403;
-      throw error;
+      throw new Error(
+        "Your company access is deactivated. Please contact Syntrix Super Admin."
+      );
     }
+  }
 
-    return {
-      user: sanitizeUser(user),
-      redirectPath: "/dashboard",
-    };
-  },
+  user.lastLoginAt = new Date();
+  await user.save();
 
-  async loginSuperadmin({ email, password }) {
-    if (!email || !password) {
-      const error = new Error("Email and password are required");
-      error.status = 400;
-      throw error;
+  const token = signAccessToken({
+    sub: user._id.toString(),
+    companyId: user.companyId ? user.companyId.toString() : null,
+    role: user.roleId.name
+  });
+
+  return {
+    token,
+    user: {
+      id: user._id.toString(),
+      companyId: user.companyId ? user.companyId.toString() : null,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.roleId.name,
+      roleLabel: ROLE_LABELS[user.roleId.name] || user.roleId.name,
+      permissions: user.roleId.permissions || []
     }
-
-    const superAdmin = await superAdminRepository.getByEmail(email);
-    if (!superAdmin) {
-      const error = new Error("Invalid superadmin credentials");
-      error.status = 401;
-      throw error;
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, superAdmin.password);
-    if (!isPasswordValid) {
-      const error = new Error("Invalid superadmin credentials");
-      error.status = 401;
-      throw error;
-    }
-
-    return {
-      user: sanitizeUser(superAdmin),
-      redirectPath: "/superadmin-dashboard",
-    };
-  },
-};
+  };
+}
