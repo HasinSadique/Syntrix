@@ -57,37 +57,36 @@ export default function LoginPage() {
       <section className="relative hidden overflow-hidden bg-zinc-950 p-10 text-zinc-100 lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.35),_transparent_55%)]" />
         <div className="relative z-10">
+          {" "}
           {/* <p className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1 text-xs">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-            Production-style architecture
-          </p> */}
-          <h1 className=" text-4xl font-semibold tracking-tight">Syntrix</h1>
+                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                        Production-style architecture
+                      </p> */}{" "}
+          <h1 className=" text-4xl font-semibold tracking-tight"> Syntrix </h1>{" "}
           <p className="mt-3 max-w-md text-zinc-300">
-            A single platform for managing your NDIS operations and workflows.
+            A single platform for managing your NDIS operations and
+            workflows.{" "}
           </p>
-
           <div className="mt-10 space-y-3 text-sm text-zinc-300">
-            <p>Demo accounts are seeded via `npm run seed`.</p>
-            <p>Super Admin: superadmin@syntrix.com</p>
-            <p>Password: Password123!</p>
-          </div>
-        </div>
+            <p> Super Admin: superadmin @syntrix.com </p>{" "}
+            <p> Password: Password123! </p>{" "}
+          </div>{" "}
+        </div>{" "}
       </section>
-
       <section className="flex items-center justify-center p-6">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Sign in</CardTitle>
+            <CardTitle className="text-2xl"> Sign in </CardTitle>{" "}
             <CardDescription>
-              Access Syntrix with your company staff credentials
-            </CardDescription>
-          </CardHeader>
+              Access Syntrix with your company staff credentials{" "}
+            </CardDescription>{" "}
+          </CardHeader>{" "}
           <CardContent>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Email
-                </label>
+                  Email{" "}
+                </label>{" "}
                 <Input
                   type="email"
                   required
@@ -97,13 +96,12 @@ export default function LoginPage() {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, email: event.target.value }))
                   }
-                />
+                />{" "}
               </div>
-
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Password
-                </label>
+                  Password{" "}
+                </label>{" "}
                 <Input
                   type="password"
                   required
@@ -116,23 +114,22 @@ export default function LoginPage() {
                       password: event.target.value,
                     }))
                   }
-                />
+                />{" "}
               </div>
-
               {error ? (
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {error}
+                  {" "}
+                  {error}{" "}
                 </p>
               ) : null}
-
               <Button className="w-full" disabled={isLoading} type="submit">
-                <LockKeyhole className="h-4 w-4" />
-                {isLoading ? "Signing in..." : "Sign in"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </section>
+                <LockKeyhole className="h-4 w-4" />{" "}
+                {isLoading ? "Signing in..." : "Sign in"}{" "}
+              </Button>{" "}
+            </form>{" "}
+          </CardContent>{" "}
+        </Card>{" "}
+      </section>{" "}
     </div>
   );
 }
