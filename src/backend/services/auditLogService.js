@@ -7,6 +7,78 @@ import {
   toPlainDocument
 } from "@/backend/services/_serviceUtils";
 
+function toLabel(value) {
+  if (!value) {
+    return "";
+  }
+
+  return value
+    .toString()
+    .replace(/[_\.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function toPersonName(value, fallback = "Unknown User") {
+  if (!value) {
+    return fallback;
+  }
+
+  if (typeof value === "string") {
+    return value.trim() || fallback;
+  }
+
+  const firstName = value.firstName?.trim?.() || "";
+  const lastName = value.lastName?.trim?.() || "";
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  return fullName || value.name?.trim?.() || fallback;
+}
+
+function buildAuditDescription({ currentUser, payload }) {
+  const actorName = toPersonName(currentUser);
+  const actorRole = toLabel(currentUser?.role);
+  const action = payload.action?.toLowerCase() || "";
+  const entityType = payload.entityType?.toLowerCase() || "";
+  const newValue = payload.newValue || {};
+
+  if (action === "user.create") {
+    const createdRole = toLabel(newValue.role) || "User";
+    const createdName = toPersonName(
+      {
+        firstName: newValue.firstName,
+        lastName: newValue.lastName,
+        name: newValue.name
+      },
+      "new user"
+    );
+    return `${createdRole} ${createdName} created by ${actorRole || "User"} ${actorName}`.trim();
+  }
+
+  if (action.includes("update") || action.includes("profile")) {
+    if (
+      entityType.includes("worker") ||
+      entityType.includes("support_worker") ||
+      entityType === "user"
+    ) {
+      const targetName = toPersonName(
+        {
+          firstName: newValue.firstName,
+          lastName: newValue.lastName,
+          name: newValue.name
+        },
+        "Support worker"
+      );
+      return `${targetName} updated their profile`;
+    }
+  }
+
+  const entityLabel = toLabel(payload.entityType) || "Record";
+  const actionLabel = toLabel(payload.action) || "updated";
+  return `${entityLabel} ${actionLabel} by ${actorName}`.trim();
+}
+
 export async function listAuditLogs({ currentUser, query }) {
   await connectToDatabase();
 
@@ -53,6 +125,12 @@ export async function createAuditLog({ currentUser, payload }) {
       ? toObjectId(currentUser.companyId || payload.companyId, "companyId")
       : undefined;
 
+  const description = buildAuditDescription({ currentUser, payload });
+  const metadata = {
+    ...(payload.metadata || {}),
+    description
+  };
+
   const auditLog = await AuditLog.create({
     companyId,
     userId: toObjectId(currentUser.id, "userId"),
@@ -61,7 +139,7 @@ export async function createAuditLog({ currentUser, payload }) {
     entityId: payload.entityId,
     oldValue: payload.oldValue ?? null,
     newValue: payload.newValue ?? null,
-    metadata: payload.metadata ?? null
+    metadata
   });
 
   return toPlainDocument(auditLog);

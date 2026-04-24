@@ -40,7 +40,7 @@ export async function listAssignments({ currentUser, query }) {
       .limit(limit)
       .populate("participantId", "firstName lastName ndisNumber")
       .populate("workerUserId", "firstName lastName email")
-      .populate("coordinatorUserId", "firstName lastName email")
+      .populate("careManagerUserId", "firstName lastName email")
       .lean()
   ]);
 
@@ -73,16 +73,16 @@ export async function createAssignment({ currentUser, payload }) {
 
   await ensureEntityInCompany({
     model: User,
-    entityId: payload.coordinatorUserId,
+    entityId: payload.careManagerUserId,
     companyId,
-    label: "coordinator user"
+    label: "care manager user"
   });
 
   const assignment = await Assignment.create({
     companyId,
     participantId: toObjectId(payload.participantId, "participantId"),
     workerUserId: toObjectId(payload.workerUserId, "workerUserId"),
-    coordinatorUserId: toObjectId(payload.coordinatorUserId, "coordinatorUserId"),
+    careManagerUserId: toObjectId(payload.careManagerUserId, "careManagerUserId"),
     startDate: payload.startDate,
     endDate: payload.endDate,
     status: payload.status
@@ -98,7 +98,7 @@ export async function createAssignment({ currentUser, payload }) {
       newValue: {
         participantId: payload.participantId,
         workerUserId: payload.workerUserId,
-        coordinatorUserId: payload.coordinatorUserId,
+        careManagerUserId: payload.careManagerUserId,
         status: payload.status
       }
     }

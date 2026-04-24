@@ -35,6 +35,23 @@ const workerProfileSchema = new mongoose.Schema(
       default: "available",
       index: true
     },
+    residentialStatus: {
+      type: String,
+      enum: ["australian_citizen", "permanent_resident", "international"]
+    },
+    hoursRestriction: {
+      type: String,
+      enum: ["fortnightly_48", "unlimited"]
+    },
+    visaType: {
+      type: String,
+      trim: true,
+      maxlength: 200
+    },
+    /** Per document slot: { [slotId]: { reviewStatus: incomplete|submitted|complete } } — updated by admins. */
+    documentReviews: {
+      type: mongoose.Schema.Types.Mixed
+    },
     joinedAt: {
       type: Date,
       default: Date.now

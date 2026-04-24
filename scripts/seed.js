@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { defaultDocumentReviews } from "../src/constants/supportWorkerDocumentSlots.js";
 
 const rolesCollection = "roles";
 const companiesCollection = "companies";
@@ -28,9 +29,15 @@ const roleDefinitions = [{
         permissions: ["participant:manage", "worker:manage", "shift:manage"],
     },
     {
-        name: "support_coordinator",
-        description: "Participant and plan coordinator",
-        permissions: ["participant:manage", "shift:view", "budget:view"],
+        name: "care_manager",
+        description: "Participant and plan management",
+        permissions: [
+            "participant:manage",
+            "shift:view",
+            "shift:manage",
+            "budget:view",
+            "incident:create",
+        ],
     },
     {
         name: "support_worker",
@@ -65,9 +72,9 @@ const demoUsers = [{
     },
     {
         firstName: "Care",
-        lastName: "Coordinator",
-        email: "coordinator@horizoncare.com",
-        roleName: "support_coordinator",
+        lastName: "Manager",
+        email: "caremanager@horizoncare.com",
+        roleName: "care_manager",
         state: "NSW",
         phone: "0410000004",
     },
@@ -78,6 +85,7 @@ const demoUsers = [{
         roleName: "support_worker",
         state: "NSW",
         phone: "0410000005",
+        address: "123 Demo St, Parramatta NSW 2150",
     },
 ];
 
@@ -134,6 +142,29 @@ async function run() {
     const roles = await db.collection(rolesCollection).find({}).toArray();
     const roleMap = Object.fromEntries(roles.map((role) => [role.name, role]));
 
+    const legacyCoordinatorRole = await db
+        .collection(rolesCollection)
+        .findOne({ name: "support_coordinator" });
+    const careManagerRole = roleMap.care_manager;
+    if (legacyCoordinatorRole && careManagerRole) {
+        await db.collection(usersCollection).updateMany(
+            { roleId: legacyCoordinatorRole._id },
+            { $set: { roleId: careManagerRole._id, updatedAt: now } },
+        );
+        await db.collection(rolesCollection).deleteOne({ _id: legacyCoordinatorRole._id });
+    }
+
+    for (const collName of ["assignments", "shifts", "participantplans"]) {
+        try {
+            await db.collection(collName).updateMany(
+                { coordinatorUserId: { $exists: true } },
+                { $rename: { coordinatorUserId: "careManagerUserId" } },
+            );
+        } catch {
+            // Rename may fail if already migrated or both fields exist
+        }
+    }
+
     await db.collection(companiesCollection).updateOne({ abn: "51824753556" }, {
         $set: {
             name: "Horizon Care Group",
@@ -169,6 +200,7 @@ async function run() {
                 roleId: role._id,
                 companyId: isSuperAdmin ? null : company._id,
                 phone: user.phone,
+                ...(user.address ? { address: user.address } : {}),
                 state: user.state,
                 status: "active",
                 passwordHash,
@@ -192,6 +224,9 @@ async function run() {
                 employmentType: "part_time",
                 jobTitle: "Disability Support Worker",
                 availabilityStatus: "available",
+                residentialStatus: "australian_citizen",
+                hoursRestriction: "fortnightly_48",
+                documentReviews: defaultDocumentReviews(),
                 joinedAt: now,
                 updatedAt: now,
             },
@@ -224,6 +259,8 @@ async function run() {
             },
         }, { upsert: true }, );
     }
+
+    await db.collection(usersCollection).deleteOne({ email: "coordinator@horizoncare.com" });
 
     console.log("Seed complete.");
     console.log("Login: superadmin@syntrix.com");

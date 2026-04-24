@@ -18,6 +18,10 @@ const participantSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    preferredName: {
+      type: String,
+      trim: true
+    },
     dob: {
       type: Date,
       required: true
@@ -35,6 +39,26 @@ const participantSchema = new mongoose.Schema(
       type: String,
       trim: true
     },
+    primaryDisability: {
+      type: String,
+      trim: true
+    },
+    secondaryDisability: {
+      type: String,
+      trim: true
+    },
+    medicalAlerts: {
+      type: [String],
+      default: []
+    },
+    highRiskFlags: {
+      type: [String],
+      default: []
+    },
+    epilepsyProtocol: {
+      type: String,
+      trim: true
+    },
     emergencyContact: {
       name: { type: String, trim: true },
       phone: { type: String, trim: true },
@@ -49,6 +73,14 @@ const participantSchema = new mongoose.Schema(
       type: String,
       enum: ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"],
       required: true
+    },
+    managementType: {
+      type: String,
+      enum: ["agency_managed", "plan_managed", "self_managed"]
+    },
+    staffRatio: {
+      type: String,
+      trim: true
     },
     status: {
       type: String,

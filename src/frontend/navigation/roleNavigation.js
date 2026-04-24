@@ -34,29 +34,19 @@ export const navigationByRole = {
     { title: "Dashboard", href: "/dashboard", icon: "layout-dashboard" },
     ...companyWorkspaceItems
   ],
-  [ROLES.SUPPORT_COORDINATOR]: [
+  [ROLES.CARE_MANAGER]: [
     { title: "Dashboard", href: "/dashboard", icon: "layout-dashboard" },
     ...companyWorkspaceItems
   ],
   [ROLES.SUPPORT_WORKER]: [
     { title: "Dashboard", href: "/dashboard", icon: "layout-dashboard" },
-    {
-      title: "Roster Mgt.",
-      href: "/roster",
-      icon: "calendar-range",
-      comingSoon: true
-    },
+    { title: "Schedule", href: "/schedule", icon: "calendar-range" },
     {
       title: "Incidents",
       href: "/compliance",
       icon: "triangle-alert",
       comingSoon: true
     },
-    {
-      title: "Document Center",
-      href: "/documents",
-      icon: "folder-archive",
-      comingSoon: true
-    }
+    { title: "Profile", href: "/profile", icon: "user-circle" }
   ]
 };

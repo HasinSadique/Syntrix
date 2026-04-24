@@ -49,14 +49,13 @@ export function DashboardOverview({ user, stats }) {
           <CardHeader>
             <CardTitle>Company activity</CardTitle>
             <CardDescription>
-              Tenant-level snapshot and operational status
+              Company related insights and operational status
             </CardDescription>
           </CardHeader>
           <CardContent>
             {stats.companies.length === 0 ? (
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Company-level table is shown for Super Admin users. Your role
-                sees scoped data only.
+                Company-level table and stats
               </p>
             ) : (
               <div className="space-y-3">
@@ -107,7 +106,7 @@ export function DashboardOverview({ user, stats }) {
             />
             <QuickAction
               href="/documents"
-              title="Document Center (S3)"
+              title="Document Center"
               icon={<FolderArchive className="h-4 w-4" />}
               comingSoon
             />

@@ -4,12 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 const defaultFormState = {
   email: "",
-  password: ""
+  password: "",
 };
 
 export default function LoginPage() {
@@ -27,7 +33,7 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
 
       const data = await response.json();
@@ -51,16 +57,13 @@ export default function LoginPage() {
       <section className="relative hidden overflow-hidden bg-zinc-950 p-10 text-zinc-100 lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.35),_transparent_55%)]" />
         <div className="relative z-10">
-          <p className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1 text-xs">
+          {/* <p className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1 text-xs">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
             Production-style architecture
-          </p>
-          <h1 className="mt-8 text-4xl font-semibold tracking-tight">
-            Syntrix for NDIS
-          </h1>
+          </p> */}
+          <h1 className=" text-4xl font-semibold tracking-tight">Syntrix</h1>
           <p className="mt-3 max-w-md text-zinc-300">
-            A single operating platform for participants, workforce, incidents,
-            compliance, and finance workflows.
+            A single platform for managing your NDIS operations and workflows.
           </p>
 
           <div className="mt-10 space-y-3 text-sm text-zinc-300">
@@ -108,13 +111,18 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   value={form.password}
                   onChange={(event) =>
-                    setForm((prev) => ({ ...prev, password: event.target.value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      password: event.target.value,
+                    }))
                   }
                 />
               </div>
 
               {error ? (
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {error}
+                </p>
               ) : null}
 
               <Button className="w-full" disabled={isLoading} type="submit">

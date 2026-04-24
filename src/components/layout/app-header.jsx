@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { ROLES } from "@/backend/constants/roles";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ function getInitials(firstName, lastName) {
   return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
 }
 
-export function AppHeader({ user }) {
+export function AppHeader({ user, onOpenSidebar }) {
   const router = useRouter();
   const today = new Intl.DateTimeFormat("en-AU", {
     weekday: "short",
@@ -28,14 +28,25 @@ export function AppHeader({ user }) {
 
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200/80 bg-white/80 px-4 py-3 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/80 lg:px-6">
-      <div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">{today}</p>
-        <h1 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-          Welcome back{" "}
-          {user.firstName != "Syntrix" ? ", " + user.firstName : ""}
-        </h1>
+      <div className="flex min-w-0 items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className="lg:hidden"
+          onClick={onOpenSidebar}
+          aria-label="Open sidebar"
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+        <div className="min-w-0">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{today}</p>
+          <h1 className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
+            Welcome back{" "}
+            {user.firstName != "Syntrix" ? ", " + user.firstName : ""}
+          </h1>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {user.role === ROLES.SUPER_ADMIN ? (
           <div className="hidden items-center gap-2 md:flex">
             <Badge variant={user.activeCompanyName ? "success" : "warning"}>

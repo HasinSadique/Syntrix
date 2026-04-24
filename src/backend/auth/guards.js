@@ -7,7 +7,8 @@ import {
 } from "@/backend/auth/constants";
 import { verifyAccessToken } from "@/backend/auth/jwt";
 import { connectToDatabase } from "@/backend/db/mongoose";
-import { Company, User } from "@/backend/models";
+import { Company, User, WorkerProfile } from "@/backend/models";
+import { mergeDocumentReviews } from "@/constants/supportWorkerDocumentSlots";
 import { ROLES } from "@/backend/constants/roles";
 
 export async function getCurrentUser() {
@@ -66,7 +67,7 @@ export async function getCurrentUser() {
       }
     }
 
-    return {
+    const sessionUser = {
       id: user._id.toString(),
       companyId: defaultCompanyId,
       activeCompanyId,
@@ -77,8 +78,29 @@ export async function getCurrentUser() {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      state: user.state || null
+      phone: user.phone || "",
+      address: user.address || "",
+      state: user.state || null,
     };
+
+    if (role === ROLES.SUPPORT_WORKER) {
+      const wp = await WorkerProfile.findOne({ userId: user._id }).lean();
+      sessionUser.workerProfile = wp
+        ? {
+            residentialStatus: wp.residentialStatus || "australian_citizen",
+            hoursRestriction: wp.hoursRestriction || "fortnightly_48",
+            visaType: wp.visaType || "",
+            documentReviews: mergeDocumentReviews(wp.documentReviews),
+          }
+        : {
+            residentialStatus: "australian_citizen",
+            hoursRestriction: "fortnightly_48",
+            visaType: "",
+            documentReviews: mergeDocumentReviews(null),
+          };
+    }
+
+    return sessionUser;
   } catch (error) {
     return null;
   }

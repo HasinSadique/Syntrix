@@ -1,6 +1,6 @@
 # Syntrix
 
-Production-style multi-tenant SaaS for Australian NDIS providers.
+Syntrix is a multi-tenant NDIS operations management SaaS prototype for the Australian NDIS providers.
 
 ## Tech stack
 
@@ -70,6 +70,7 @@ scripts/
 - Role-aware sidebar navigation
 - Dashboard foundation with dark/light mode toggle
 - UI placeholders for Roster, Compliance, and Documents (S3 deferred intentionally)
+
 # Syntrix
 
 Syntrix is a multi-tenant NDIS operations management prototype built with Next.js App Router and MongoDB.
@@ -77,6 +78,7 @@ Syntrix is a multi-tenant NDIS operations management prototype built with Next.j
 This version is **MongoDB-only** (dummy data and dummy repositories removed).
 
 It includes:
+
 - Public landing + auth
 - Role-based workspaces (`superadmin`, `company_admin`, `state_manager`, `support_worker`)
 - Company, staff, participant, roster/assignment, notes, incidents
@@ -141,6 +143,7 @@ After running seed endpoint, all seeded accounts use:
 ## Email Architecture
 
 Core files:
+
 - `src/backend/config/mailer.js`
 - `src/backend/services/emailService.js`
 - `src/backend/emails/templates/*`

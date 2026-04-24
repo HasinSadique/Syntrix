@@ -17,6 +17,264 @@ body {
   min-height: 100%;
 }
 
+/* react-big-calendar: keep time grid scrollable while selecting slots */
+.availability-calendar-shell .rbc-time-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.availability-calendar-shell .rbc-time-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.availability-calendar-shell .rbc-day-slot .rbc-time-column {
+  overflow-y: auto !important;
+}
+
+/* Custom availability events (avoid inline styles so dark mode can theme) */
+.availability-calendar-shell .avail-rbc-event {
+  border-radius: 6px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.availability-calendar-shell .avail-rbc-event--single {
+  background-color: rgba(124, 58, 246, 0.18) !important;
+  border-color: rgb(124, 58, 237) !important;
+  color: rgb(49, 46, 129) !important;
+}
+
+.availability-calendar-shell .avail-rbc-event--series {
+  background-color: rgba(6, 182, 212, 0.2) !important;
+  border-color: rgb(8, 145, 178) !important;
+  color: rgb(22, 78, 99) !important;
+}
+
+/* react-big-calendar: dark mode (availability shell only) */
+.dark .availability-calendar-shell {
+  color: #e4e4e7;
+  background-color: #18181b;
+  border-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-calendar {
+  color: #e4e4e7;
+}
+
+.dark .availability-calendar-shell .rbc-toolbar {
+  gap: 0.5rem;
+}
+
+.dark .availability-calendar-shell .rbc-toolbar-label {
+  color: #fafafa;
+  font-weight: 600;
+}
+
+.dark .availability-calendar-shell .rbc-toolbar button {
+  color: #e4e4e7;
+  background-color: #27272a;
+  border-color: #52525b;
+}
+
+.dark .availability-calendar-shell .rbc-toolbar button:hover,
+.dark .availability-calendar-shell .rbc-toolbar button:focus {
+  color: #fafafa;
+  background-color: #3f3f46;
+  border-color: #71717a;
+}
+
+.dark .availability-calendar-shell .rbc-toolbar button:active,
+.dark .availability-calendar-shell .rbc-toolbar button.rbc-active {
+  background-color: #52525b;
+  border-color: #a1a1aa;
+  color: #fafafa;
+}
+
+.dark .availability-calendar-shell .rbc-header {
+  color: #d4d4d8;
+  border-bottom-color: #3f3f46;
+  background-color: #27272a;
+}
+
+.dark .availability-calendar-shell .rbc-header + .rbc-header {
+  border-left-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-today {
+  background-color: rgba(139, 92, 246, 0.12);
+}
+
+.dark .availability-calendar-shell .rbc-off-range {
+  color: #71717a;
+}
+
+.dark .availability-calendar-shell .rbc-off-range-bg {
+  background: #27272a;
+}
+
+.dark .availability-calendar-shell .rbc-month-view {
+  border-color: #3f3f46;
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-month-row + .rbc-month-row {
+  border-top-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-day-bg + .rbc-day-bg {
+  border-left-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-time-view {
+  border-color: #3f3f46;
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-time-header,
+.dark .availability-calendar-shell .rbc-time-header.rbc-overflowing {
+  border-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-time-header > .rbc-row:first-child,
+.dark .availability-calendar-shell .rbc-time-header > .rbc-row.rbc-row-resource {
+  border-bottom-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-time-header-content {
+  border-left-color: #3f3f46;
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-time-content {
+  border-top-color: #3f3f46;
+  background-color: #18181b;
+  scrollbar-color: #52525b #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-time-view .rbc-allday-cell {
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-time-view .rbc-allday-cell + .rbc-allday-cell {
+  border-left-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-time-content > * + * > * {
+  border-left-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-time-gutter,
+.dark .availability-calendar-shell .rbc-header-gutter {
+  background-color: #18181b;
+  color: #a1a1aa;
+}
+
+.dark .availability-calendar-shell .rbc-label {
+  color: #a1a1aa;
+}
+
+.dark .availability-calendar-shell .rbc-timeslot-group {
+  border-bottom-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-day-slot .rbc-time-slot {
+  border-top-color: #27272a;
+}
+
+.dark .availability-calendar-shell .rbc-time-column {
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-day-slot {
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-selected-cell {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .availability-calendar-shell .rbc-slot-selection {
+  background-color: rgba(139, 92, 246, 0.35);
+  color: #fafafa;
+}
+
+.dark .availability-calendar-shell .rbc-show-more {
+  color: #c4b5fd;
+  background-color: rgba(39, 39, 42, 0.9);
+}
+
+.dark .availability-calendar-shell .rbc-show-more:hover,
+.dark .availability-calendar-shell .rbc-show-more:focus {
+  color: #ddd6fe;
+}
+
+.dark .availability-calendar-shell .rbc-overlay {
+  background-color: #27272a;
+  border-color: #3f3f46;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  color: #e4e4e7;
+}
+
+.dark .availability-calendar-shell .rbc-overlay-header {
+  border-bottom-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-agenda-view table.rbc-agenda-table {
+  border-color: #3f3f46;
+  background-color: #18181b;
+}
+
+.dark .availability-calendar-shell .rbc-agenda-view table.rbc-agenda-table thead > tr > th {
+  border-bottom-color: #3f3f46;
+  color: #d4d4d8;
+  background-color: #27272a;
+}
+
+.dark .availability-calendar-shell .rbc-agenda-view table.rbc-agenda-table tbody > tr + tr {
+  border-top-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-agenda-view table.rbc-agenda-table tbody > tr > td + td {
+  border-left-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .rbc-current-time-indicator {
+  background-color: #34d399;
+}
+
+.dark .availability-calendar-shell .rbc-time-view-resources .rbc-time-gutter,
+.dark .availability-calendar-shell .rbc-time-view-resources .rbc-time-header-gutter {
+  background-color: #18181b;
+  border-right-color: #3f3f46;
+}
+
+.dark .availability-calendar-shell .avail-rbc-event--single {
+  background-color: rgba(167, 139, 250, 0.22) !important;
+  border-color: #a78bfa !important;
+  color: #ede9fe !important;
+}
+
+.dark .availability-calendar-shell .avail-rbc-event--series {
+  background-color: rgba(34, 211, 238, 0.16) !important;
+  border-color: #22d3ee !important;
+  color: #ecfeff !important;
+}
+
+.dark .availability-calendar-shell .rbc-day-slot .rbc-event.rbc-selected,
+.dark .availability-calendar-shell .rbc-day-slot .rbc-selected.rbc-background-event {
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.5);
+}
+
+.dark .availability-calendar-shell .rbc-event:focus,
+.dark .availability-calendar-shell .rbc-day-slot .rbc-background-event:focus {
+  outline-color: #a78bfa;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

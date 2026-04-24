@@ -3,9 +3,8 @@ import { requireAuthUser } from "@/backend/auth/guards";
 import { ROLES } from "@/backend/constants/roles";
 import { connectToDatabase } from "@/backend/db/mongoose";
 import { WorkerProfile } from "@/backend/models";
-import { CreateUserForm } from "@/components/users/create-user-form";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WorkerListTable } from "@/components/workers/worker-list-table";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function WorkersPage() {
   const user = await requireAuthUser();
@@ -35,13 +34,17 @@ export default async function WorkersPage() {
 
   const workers = await WorkerProfile.find(filter)
     .sort({ createdAt: -1 })
-    .limit(25)
-    .populate("userId", "firstName lastName email state")
+    .limit(500)
+    .populate("userId", "firstName lastName email state phone status")
     .lean();
 
-  const canCreate = [ROLES.SUPER_ADMIN, ROLES.COMPANY_ADMIN].includes(
-    user.role,
-  );
+  const workersPayload = JSON.parse(JSON.stringify(workers));
+  const canViewProfile = [
+    ROLES.SUPER_ADMIN,
+    ROLES.COMPANY_ADMIN,
+    ROLES.STATE_MANAGER,
+    ROLES.CARE_MANAGER,
+  ].includes(user.role);
 
   return (
     <div className="space-y-4">
@@ -51,52 +54,8 @@ export default async function WorkersPage() {
           Support worker profiles and availability overview.
         </p>
       </div>
-      <CreateUserForm
-        canCreate={canCreate}
-        activeCompanyId={user.activeCompanyId || undefined}
-        title="Add support worker"
-        defaultRole={ROLES.SUPPORT_WORKER}
-        allowedRoles={[ROLES.SUPPORT_WORKER]}
-      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Support worker list</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {workers.length === 0 ? (
-            <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-              No workers yet.
-            </p>
-          ) : (
-            workers.map((worker) => (
-              <div
-                key={worker._id.toString()}
-                className="flex items-center justify-between rounded-xl border border-zinc-200 p-3 dark:border-zinc-800"
-              >
-                <div>
-                  <p className="font-medium">
-                    {worker.userId?.firstName} {worker.userId?.lastName}
-                  </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {worker.jobTitle || "Support Worker"} -{" "}
-                    {worker.employeeCode}
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    worker.availabilityStatus === "available"
-                      ? "success"
-                      : "warning"
-                  }
-                >
-                  {worker.availabilityStatus}
-                </Badge>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <WorkerListTable workers={workersPayload} canViewProfile={canViewProfile} />
     </div>
   );
 }

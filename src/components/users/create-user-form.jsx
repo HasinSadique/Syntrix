@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { ROLES } from "@/backend/constants/roles";
+import {
+  HOURS_RESTRICTION_OPTIONS,
+  RESIDENTIAL_OPTIONS,
+} from "@/constants/supportWorkerDocumentSlots";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,13 +25,16 @@ const initialForm = {
     employmentType: "casual",
     jobTitle: "Support Worker",
     availabilityStatus: "available",
+    residentialStatus: "australian_citizen",
+    hoursRestriction: "fortnightly_48",
+    visaType: "",
   },
 };
 
 const roleOptions = [
   { value: ROLES.COMPANY_ADMIN, label: "Company Admin" },
   { value: ROLES.STATE_MANAGER, label: "State Manager" },
-  { value: ROLES.SUPPORT_COORDINATOR, label: "Support Coordinator" },
+  { value: ROLES.CARE_MANAGER, label: "Care Manager" },
   { value: ROLES.SUPPORT_WORKER, label: "Support Worker" },
 ];
 
@@ -45,12 +52,16 @@ export function CreateUserForm({
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const visibleRoleOptions = roleOptions.filter((item) =>
     allowedRoles.includes(item.value),
   );
 
   const isSupportWorker = form.role === ROLES.SUPPORT_WORKER;
+  const isInternational =
+    isSupportWorker &&
+    form.workerProfile?.residentialStatus === "international";
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -108,6 +119,10 @@ export function CreateUserForm({
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Select a company first to manage users.
           </p>
+        ) : !isExpanded ? (
+          <Button type="button" onClick={() => setIsExpanded(true)}>
+            {title}
+          </Button>
         ) : (
           <form className="grid gap-3 md:grid-cols-2" onSubmit={handleSubmit}>
             {defaultRole ? null : (
@@ -182,27 +197,83 @@ export function CreateUserForm({
                 ),
               )}
             </select>
-            {/* 
-              The following fields are only necessary for support workers because 
-              the workerProfile fields (like jobTitle and employee code) are specific 
-              to support worker roles and not applicable to general users. 
-            */}
-            {/* 
-              For Support Workers, the employee code is always auto-generated and the job title typically defaults to "Support Worker".
-              Having a "Job title" input here is redundant since selecting the "Support Worker" role already implies the job title, 
-              and the field does not usually require user input. Thus, we don't display unnecessary or redundant fields for support workers.
-            */}
             {isSupportWorker ? (
-              <p className="md:col-span-2 text-xs text-zinc-500 dark:text-zinc-400">
-                Employee code and job title are set automatically when creating
-                a Support Worker.
-              </p>
+              <>
+                <select
+                  required
+                  value={form.workerProfile.residentialStatus}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      workerProfile: {
+                        ...prev.workerProfile,
+                        residentialStatus: event.target.value,
+                      },
+                    }))
+                  }
+                  className="h-10 rounded-xl border border-zinc-300 bg-white px-3 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                >
+                  {RESIDENTIAL_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  required
+                  value={form.workerProfile.hoursRestriction}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      workerProfile: {
+                        ...prev.workerProfile,
+                        hoursRestriction: event.target.value,
+                      },
+                    }))
+                  }
+                  className="h-10 rounded-xl border border-zinc-300 bg-white px-3 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                >
+                  {HOURS_RESTRICTION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {isInternational ? (
+                  <Input
+                    required
+                    className="md:col-span-2"
+                    placeholder="Visa type (required for international)"
+                    value={form.workerProfile.visaType}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        workerProfile: {
+                          ...prev.workerProfile,
+                          visaType: event.target.value,
+                        },
+                      }))
+                    }
+                  />
+                ) : null}
+              </>
             ) : null}
 
             <div className="md:col-span-2">
               <Button type="submit" disabled={isSaving}>
                 <UserPlus className="h-4 w-4" />
                 {isSaving ? "Saving..." : "Create user"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="ml-2"
+                onClick={() => {
+                  setIsExpanded(false);
+                  setError("");
+                }}
+              >
+                Cancel
               </Button>
             </div>
             {error ? (

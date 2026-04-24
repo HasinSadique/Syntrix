@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true
     },
+    address: {
+      type: String,
+      trim: true,
+      maxlength: 500
+    },
     state: {
       type: String,
       enum: ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"]

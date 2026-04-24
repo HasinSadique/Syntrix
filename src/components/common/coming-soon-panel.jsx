@@ -17,7 +17,7 @@ export function ComingSoonPanel({ title, description }) {
         </p>
         {/* <p className="inline-flex items-center gap-2 text-sm text-violet-600 dark:text-violet-300">
           <Sparkles className="h-4 w-4" />
-          Backend implementation is intentionally deferred for this module.
+          Backend implementation
         </p> */}
       </CardContent>
     </Card>

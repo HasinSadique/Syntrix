@@ -14,7 +14,7 @@ const participantPlanSchema = new mongoose.Schema(
       required: true,
       index: true
     },
-    coordinatorUserId: {
+    careManagerUserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -63,7 +63,7 @@ participantPlanSchema.pre("validate", function validatePlanRange() {
 });
 
 participantPlanSchema.index({ companyId: 1, participantId: 1, planStart: -1 });
-participantPlanSchema.index({ companyId: 1, coordinatorUserId: 1, planEnd: 1 });
+participantPlanSchema.index({ companyId: 1, careManagerUserId: 1, planEnd: 1 });
 
 export const ParticipantPlan =
   mongoose.models.ParticipantPlan ||

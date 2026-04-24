@@ -54,7 +54,7 @@ export async function listShifts({ currentUser, query }) {
       .limit(limit)
       .populate("participantId", "firstName lastName ndisNumber")
       .populate("workerUserId", "firstName lastName email")
-      .populate("coordinatorUserId", "firstName lastName email")
+      .populate("careManagerUserId", "firstName lastName email")
       .lean()
   ]);
 
@@ -87,16 +87,16 @@ export async function createShift({ currentUser, payload }) {
 
   await ensureEntityInCompany({
     model: User,
-    entityId: payload.coordinatorUserId,
+    entityId: payload.careManagerUserId,
     companyId,
-    label: "coordinator user"
+    label: "care manager user"
   });
 
   const shift = await Shift.create({
     companyId,
     participantId: toObjectId(payload.participantId, "participantId"),
     workerUserId: toObjectId(payload.workerUserId, "workerUserId"),
-    coordinatorUserId: toObjectId(payload.coordinatorUserId, "coordinatorUserId"),
+    careManagerUserId: toObjectId(payload.careManagerUserId, "careManagerUserId"),
     shiftDate: payload.shiftDate,
     startTime: payload.startTime,
     endTime: payload.endTime,

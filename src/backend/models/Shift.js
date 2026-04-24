@@ -20,7 +20,7 @@ const shiftSchema = new mongoose.Schema(
       required: true,
       index: true
     },
-    coordinatorUserId: {
+    careManagerUserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

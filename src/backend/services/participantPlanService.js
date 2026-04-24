@@ -24,8 +24,8 @@ export async function listParticipantPlans({ currentUser, query }) {
     filter.participantId = toObjectId(query.participantId, "participantId");
   }
 
-  if (query.coordinatorUserId) {
-    filter.coordinatorUserId = toObjectId(query.coordinatorUserId, "coordinatorUserId");
+  if (query.careManagerUserId) {
+    filter.careManagerUserId = toObjectId(query.careManagerUserId, "careManagerUserId");
   }
 
   if (query.serviceAgreementStatus) {
@@ -39,7 +39,7 @@ export async function listParticipantPlans({ currentUser, query }) {
       .skip((page - 1) * limit)
       .limit(limit)
       .populate("participantId", "firstName lastName ndisNumber state status")
-      .populate("coordinatorUserId", "firstName lastName email")
+      .populate("careManagerUserId", "firstName lastName email")
       .lean()
   ]);
 
@@ -65,15 +65,15 @@ export async function createParticipantPlan({ currentUser, payload }) {
 
   await ensureEntityInCompany({
     model: User,
-    entityId: payload.coordinatorUserId,
+    entityId: payload.careManagerUserId,
     companyId,
-    label: "coordinator user"
+    label: "care manager user"
   });
 
   const participantPlan = await ParticipantPlan.create({
     companyId,
     participantId: toObjectId(payload.participantId, "participantId"),
-    coordinatorUserId: toObjectId(payload.coordinatorUserId, "coordinatorUserId"),
+    careManagerUserId: toObjectId(payload.careManagerUserId, "careManagerUserId"),
     planStart: payload.planStart,
     planEnd: payload.planEnd,
     goals: payload.goals,
@@ -92,7 +92,7 @@ export async function createParticipantPlan({ currentUser, payload }) {
       entityId: participantPlan._id.toString(),
       newValue: {
         participantId: payload.participantId,
-        coordinatorUserId: payload.coordinatorUserId,
+        careManagerUserId: payload.careManagerUserId,
         serviceAgreementStatus: payload.serviceAgreementStatus
       }
     }
