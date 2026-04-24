@@ -59,20 +59,20 @@ export default function LoginPage() {
         <div className="relative z-10">
           {" "}
           {/* <p className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1 text-xs">
-                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                        Production-style architecture
-                      </p> */}{" "}
+                                                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                                                Production-style architecture
+                                              </p> */}{" "}
           <h1 className=" text-4xl font-semibold tracking-tight"> Syntrix </h1>{" "}
           <p className="mt-3 max-w-md text-zinc-300">
             A single platform for managing your NDIS operations and
             workflows.{" "}
-          </p>
+          </p>{" "}
           <div className="mt-10 space-y-3 text-sm text-zinc-300">
             <p> Super Admin: superadmin @syntrix.com </p>{" "}
             <p> Password: Password123! </p>{" "}
           </div>{" "}
         </div>{" "}
-      </section>
+      </section>{" "}
       <section className="flex items-center justify-center p-6">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
@@ -97,7 +97,7 @@ export default function LoginPage() {
                     setForm((prev) => ({ ...prev, email: event.target.value }))
                   }
                 />{" "}
-              </div>
+              </div>{" "}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                   Password{" "}
@@ -115,13 +115,13 @@ export default function LoginPage() {
                     }))
                   }
                 />{" "}
-              </div>
+              </div>{" "}
               {error ? (
                 <p className="text-sm text-red-600 dark:text-red-400">
                   {" "}
                   {error}{" "}
                 </p>
-              ) : null}
+              ) : null}{" "}
               <Button className="w-full" disabled={isLoading} type="submit">
                 <LockKeyhole className="h-4 w-4" />{" "}
                 {isLoading ? "Signing in..." : "Sign in"}{" "}
