@@ -205,16 +205,13 @@ export function ParticipantSupportSessionsSection({
             )}
           >
             <p className="text-xs font-medium uppercase tracking-wide text-violet-600 dark:text-violet-400">
-              {isAssignmentSession(session) ? "Support setup" : "Scheduled shift"}
+              {isAssignmentSession(session)
+                ? "Support Session"
+                : "Scheduled shift"}
             </p>
             <p className="text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
               {session.supportTitle}
             </p>
-            {isAssignmentSession(session) && session.supportDescription ? (
-              <p className="line-clamp-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                {session.supportDescription}
-              </p>
-            ) : null}
             {!isAssignmentSession(session) && session.serviceType ? (
               <p className="line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
                 {formatServiceTypeLabel(session.serviceType)}
@@ -227,7 +224,7 @@ export function ParticipantSupportSessionsSection({
               {formatTimeRange(session.startTime, session.endTime)}
             </p>
             <p className="text-xs font-medium text-zinc-800 dark:text-zinc-200">
-              {personName(session.worker)}
+              Support Worker: {personName(session.worker)}
             </p>
           </button>
         ))}
@@ -251,7 +248,7 @@ export function ParticipantSupportSessionsSection({
               <div className="min-w-0 flex-1 pr-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-violet-600 dark:text-violet-400">
                   {isAssignmentSession(selected)
-                    ? "Support setup"
+                    ? "Support Session"
                     : "Scheduled shift"}
                 </p>
                 <h4
@@ -283,10 +280,7 @@ export function ParticipantSupportSessionsSection({
                 />
                 <DetailRow
                   label="Time"
-                  value={formatTimeRange(
-                    selected.startTime,
-                    selected.endTime,
-                  )}
+                  value={formatTimeRange(selected.startTime, selected.endTime)}
                 />
                 <DetailRow
                   label="Days"
@@ -325,10 +319,7 @@ export function ParticipantSupportSessionsSection({
                 />
                 <DetailRow
                   label="Time"
-                  value={formatTimeRange(
-                    selected.startTime,
-                    selected.endTime,
-                  )}
+                  value={formatTimeRange(selected.startTime, selected.endTime)}
                 />
                 <DetailRow label="Status" value={selected.status || "—"} />
                 <DetailRow

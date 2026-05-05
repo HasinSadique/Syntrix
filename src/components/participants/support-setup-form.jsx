@@ -209,7 +209,8 @@ export function SupportSetupForm({
                 {fullName || "—"}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                NDIS {participant.ndisNumber || "—"} · {participant.state || "—"}
+                NDIS {participant.ndisNumber || "—"} ·{" "}
+                {participant.state || "—"}
               </p>
             </div>
             <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
@@ -236,7 +237,9 @@ export function SupportSetupForm({
                   ))}
                 </ul>
               ) : (
-                <p className="mt-1 text-zinc-600 dark:text-zinc-400">None recorded.</p>
+                <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+                  None recorded.
+                </p>
               )}
             </div>
             <div className="rounded-xl border border-red-200/80 bg-red-50/40 p-3 dark:border-red-900/40 dark:bg-red-950/20">
@@ -250,7 +253,9 @@ export function SupportSetupForm({
                   ))}
                 </ul>
               ) : (
-                <p className="mt-1 text-zinc-600 dark:text-zinc-400">None recorded.</p>
+                <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+                  None recorded.
+                </p>
               )}
             </div>
           </div>
@@ -274,7 +279,8 @@ export function SupportSetupForm({
               </p>
             </div>
           ) : null}
-          {participant.emergencyContact?.name || participant.emergencyContact?.phone ? (
+          {participant.emergencyContact?.name ||
+          participant.emergencyContact?.phone ? (
             <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
               <p className="text-xs uppercase tracking-wide text-zinc-500">
                 Emergency contact
@@ -298,8 +304,9 @@ export function SupportSetupForm({
           <CardHeader>
             <CardTitle>1. Support routine</CardTitle>
             <CardDescription>
-              Title and schedule for this support. Workers are matched when their
-              saved availability fully covers these times on each selected day.
+              Title and schedule for this support. Workers are matched when
+              their saved availability fully covers these times on each selected
+              day.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -499,7 +506,7 @@ export function SupportSetupForm({
 
         <div className="flex flex-wrap gap-3">
           <Button type="submit" disabled={saving}>
-            {saving ? "Saving…" : "Complete setup"}
+            {saving ? "Saving…" : "Create Support Session"}
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link href={`/participants/${participantId}`}>Cancel</Link>
@@ -598,11 +605,7 @@ function WorkerCircleAvatar({ worker, selected }) {
       )}
     >
       {photoUrl ? (
-        <img
-          src={photoUrl}
-          alt=""
-          className="h-full w-full object-cover"
-        />
+        <img src={photoUrl} alt="" className="h-full w-full object-cover" />
       ) : (
         <span className="select-none">{initials}</span>
       )}

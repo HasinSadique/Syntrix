@@ -1,5 +1,7 @@
 import { requireAuthUser } from "@/backend/auth/guards";
 import { ROLES } from "@/backend/constants/roles";
+import { connectToDatabase } from "@/backend/db/mongoose";
+import { Assignment, Shift } from "@/backend/models";
 import { SupportWorkerSchedule } from "@/components/workers/support-worker-schedule";
 import { ComingSoonPanel } from "@/components/common/coming-soon-panel";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,5 +31,35 @@ export default async function SchedulePage() {
     );
   }
 
-  return <SupportWorkerSchedule user={user} />;
+  await connectToDatabase();
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const upcomingShifts = await Shift.find({
+    companyId: user.companyId,
+    workerUserId: user.id,
+    shiftDate: { $gte: startOfToday },
+  })
+    .sort({ shiftDate: 1, startTime: 1 })
+    .limit(24)
+    .populate("participantId", "firstName lastName")
+    .lean();
+
+  const activeAssignments = await Assignment.find({
+    companyId: user.companyId,
+    workerUserId: user.id,
+    status: { $in: ["active", "paused"] },
+    endDate: { $gte: startOfToday },
+  })
+    .sort({ startDate: 1 })
+    .limit(40)
+    .populate("participantId", "firstName lastName")
+    .lean();
+
+  return (
+    <SupportWorkerSchedule
+      user={user}
+      upcomingShifts={upcomingShifts}
+      activeAssignments={activeAssignments}
+    />
+  );
 }

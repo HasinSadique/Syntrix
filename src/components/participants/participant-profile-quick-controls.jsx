@@ -52,7 +52,7 @@ export function ParticipantProfileQuickControls({ participantId }) {
         <Button asChild variant="outline" className="justify-start">
           <Link href={`/participants/${participantId}/support-setup`}>
             <UserPlus className="h-4 w-4" />
-            Setup support
+            Setup Support Sessions
           </Link>
         </Button>
         <Button

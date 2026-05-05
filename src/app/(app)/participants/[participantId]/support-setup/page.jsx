@@ -70,19 +70,21 @@ export default async function ParticipantSupportSetupPage({ params }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Support setup</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          {" "}
+          Support Sessions{" "}
+        </h2>{" "}
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Configure routine support and assign a worker whose availability matches
-          these times.
-        </p>
+          Configure routine support and assign a worker whose availability
+          matches these times.{" "}
+        </p>{" "}
       </div>
-
       <SupportSetupForm
         participantId={participantId}
         participant={participantPayload}
         workers={workersPayload}
         careManagerUserId={user.id}
-      />
+      />{" "}
     </div>
   );
 }

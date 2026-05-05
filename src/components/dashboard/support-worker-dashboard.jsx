@@ -94,8 +94,7 @@ export function SupportWorkerDashboard({ user, dashboard }) {
     inWindow(now, nextShift.end) &&
     atServiceLocation;
 
-  let clockInHint =
-    "You are in the clock-in window and marked on-site.";
+  let clockInHint = "You are in the clock-in window and marked on-site.";
   if (!nextShift) {
     clockInHint = "No upcoming shift found — clock-in is disabled.";
   } else if (clockedInAt) {
@@ -104,7 +103,7 @@ export function SupportWorkerDashboard({ user, dashboard }) {
     clockInHint =
       "Confirm you are at the participant’s service location to enable clock-in.";
   } else if (!inWindow(now, nextShift.start)) {
-    clockInHint = `Clock-in is only available within ±5 minutes of the scheduled start (${nextShift.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}).`;
+    clockInHint = `Clock-in is only available within ±5 minutes of the scheduled start Date and time (next shift start time: ${nextShift.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}).`;
   }
 
   let clockOutHint = "You are in the clock-out window.";
@@ -173,7 +172,10 @@ export function SupportWorkerDashboard({ user, dashboard }) {
                         <UserRound className="h-4 w-4 text-zinc-500" />
                         {name}
                       </span>
-                      <Badge variant="secondary" className="shrink-0 text-[10px]">
+                      <Badge
+                        variant="secondary"
+                        className="shrink-0 text-[10px]"
+                      >
                         Active
                       </Badge>
                     </div>
@@ -221,8 +223,8 @@ export function SupportWorkerDashboard({ user, dashboard }) {
           <CardContent className="space-y-3 text-sm">
             {!nextShift ? (
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                No upcoming shifts in your schedule. Support routines appear here
-                once a coordinator completes setup.
+                No upcoming shifts in your schedule. Support routines appear
+                here once a coordinator completes setup.
               </p>
             ) : (
               <div className="rounded-xl border border-zinc-200/90 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-900/40">

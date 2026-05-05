@@ -221,7 +221,9 @@ function buildSupportSessionsList(shifts, assignments) {
     dateRangeEnd: a.endDate ? new Date(a.endDate).toISOString() : null,
     routineDayKeys: Array.isArray(a.routineDayKeys) ? a.routineDayKeys : [],
     routineDaysLabel: formatRoutineDayLabels(a.routineDayKeys),
-    supportDescription: String(a.supportDescription ?? "").trim().slice(0, 8000),
+    supportDescription: String(a.supportDescription ?? "")
+      .trim()
+      .slice(0, 8000),
     startTime: a.routineStartTime || "",
     endTime: a.routineEndTime || "",
     location: "",
