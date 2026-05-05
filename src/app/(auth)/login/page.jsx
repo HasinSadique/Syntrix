@@ -67,7 +67,7 @@ export default function LoginPage() {
             A single platform for managing your NDIS operations and
             workflows.{" "}
           </p>{" "}
-          <div className="mt-10 space-y-3 text-sm text-zinc-300">
+          <div className="hidden mt-10 space-y-3 text-sm text-zinc-300">
             <p> Super Admin: superadmin @syntrix.com </p>{" "}
             <p> Password: Password123! </p>{" "}
           </div>{" "}

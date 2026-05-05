@@ -382,3 +382,42 @@ export async function updateSupportWorkerOwnContact({ currentUser, payload }) {
         address: updated.address || "",
     };
 }
+
+export async function updateSupportWorkerOwnAvailability({ currentUser, payload }) {
+    await connectToDatabase();
+
+    if (currentUser.role !== ROLES.SUPPORT_WORKER) {
+        throw createServiceError(403, "Only support workers can update availability");
+    }
+
+    const existingProfile = await WorkerProfile.findOne({ userId: currentUser.id })
+        .select("_id availabilitySchedule")
+        .lean();
+
+    if (!existingProfile?._id) {
+        throw createServiceError(404, "Worker profile not found");
+    }
+
+    const updatedProfile = await WorkerProfile.findByIdAndUpdate(
+            existingProfile._id,
+            { $set: { availabilitySchedule: payload } },
+            { new: true, runValidators: true },
+        )
+        .select("availabilitySchedule")
+        .lean();
+
+    await createAuditLog({
+        currentUser,
+        payload: {
+            action: "user.availability.update",
+            entityType: "support_worker",
+            entityId: currentUser.id,
+            oldValue: existingProfile.availabilitySchedule || null,
+            newValue: updatedProfile?.availabilitySchedule || null,
+        },
+    });
+
+    return {
+        availabilitySchedule: updatedProfile?.availabilitySchedule || null,
+    };
+}

@@ -1,7 +1,9 @@
+import { ROLES } from "@/backend/constants/roles";
 import { connectToDatabase } from "@/backend/db/mongoose";
-import { Participant, Shift, User } from "@/backend/models";
+import { Participant, Shift, ShiftNote, User } from "@/backend/models";
 import { createAuditLog } from "@/backend/services/auditLogService";
 import {
+  createServiceError,
   ensureEntityInCompany,
   resolvePagination,
   resolveRequiredCompanyId,
@@ -123,4 +125,52 @@ export async function createShift({ currentUser, payload }) {
   });
 
   return toPlainDocument(shift);
+}
+
+const SHIFT_DELETE_ROLES = new Set([
+  ROLES.SUPER_ADMIN,
+  ROLES.COMPANY_ADMIN,
+  ROLES.STATE_MANAGER,
+  ROLES.CARE_MANAGER,
+]);
+
+export async function deleteShift({ currentUser, shiftId, participantId }) {
+  await connectToDatabase();
+
+  if (!SHIFT_DELETE_ROLES.has(currentUser.role)) {
+    throw createServiceError(403, "You do not have permission to delete shifts");
+  }
+
+  const companyId = resolveRequiredCompanyId(currentUser, null);
+  const shiftObjectId = toObjectId(shiftId, "shiftId");
+
+  const filter = { _id: shiftObjectId, companyId };
+  if (participantId) {
+    filter.participantId = toObjectId(participantId, "participantId");
+  }
+
+  const shift = await Shift.findOne(filter).lean();
+  if (!shift) {
+    throw createServiceError(404, "Shift not found");
+  }
+
+  await ShiftNote.deleteMany({ companyId, shiftId: shiftObjectId });
+  await Shift.deleteOne({ _id: shiftObjectId });
+
+  await createAuditLog({
+    currentUser,
+    payload: {
+      companyId: companyId.toString(),
+      action: "shift.delete",
+      entityType: "shift",
+      entityId: shiftObjectId.toString(),
+      newValue: {
+        participantId: shift.participantId?.toString?.() || shift.participantId,
+        serviceType: shift.serviceType,
+        shiftDate: shift.shiftDate,
+      },
+    },
+  });
+
+  return { deleted: true };
 }

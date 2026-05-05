@@ -55,9 +55,11 @@ export default async function ParticipantsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-semibold">Participants</h2>
+        <h2 className="text-2xl font-semibold">
+          Participants Management Portal
+        </h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Participant onboarding and management.
+          Onboard and manage participants.
         </p>
       </div>
       <CreateParticipantForm

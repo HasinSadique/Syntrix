@@ -1,22 +1,14 @@
 import mongoose from "mongoose";
 import Link from "next/link";
-import {
-  CircleDollarSign,
-  FileClock,
-  NotebookText,
-  Pencil,
-  Siren,
-  UserCircle2,
-  UserPlus,
-} from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { requireRoles } from "@/backend/auth/guards";
 import { ROLE_LABELS } from "@/backend/constants/roles";
 import { ROLES } from "@/backend/constants/roles";
 import { connectToDatabase } from "@/backend/db/mongoose";
 import {
-  AuditLog,
   Assignment,
+  AuditLog,
   Document,
   Incident,
   Participant,
@@ -25,7 +17,13 @@ import {
   Shift,
   ShiftNote,
 } from "@/backend/models";
-import { Button } from "@/components/ui/button";
+import { ROUTINE_DAYS } from "@/lib/supportRoutine";
+import {
+  ParticipantProfileAccordion,
+  ParticipantProfileAccordionSection,
+} from "@/components/participants/participant-profile-accordion";
+import { ParticipantProfileQuickControls } from "@/components/participants/participant-profile-quick-controls";
+import { ParticipantSupportSessionsSection } from "@/components/participants/participant-support-sessions-section";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -92,13 +90,15 @@ function formatAuditAction(log) {
   }
 
   const actorName = log?.userId
-    ? `${log.userId.firstName || ""} ${log.userId.lastName || ""}`.trim() || "Unknown user"
+    ? `${log.userId.firstName || ""} ${log.userId.lastName || ""}`.trim() ||
+      "Unknown user"
     : "Unknown user";
 
   const actorRole = ROLE_LABELS?.[log?.metadata?.actorRole] || "User";
   const action = log?.action?.toLowerCase() || "";
   const entityType = log?.entityType?.toLowerCase() || "";
-  const targetName = `${log?.newValue?.firstName || ""} ${log?.newValue?.lastName || ""}`.trim();
+  const targetName =
+    `${log?.newValue?.firstName || ""} ${log?.newValue?.lastName || ""}`.trim();
   const targetRole = log?.newValue?.role
     ? ROLE_LABELS[log.newValue.role] || log.newValue.role
     : "User";
@@ -110,7 +110,9 @@ function formatAuditAction(log) {
 
   if (
     action.includes("update") &&
-    (entityType.includes("worker") || entityType.includes("support_worker") || entityType === "user")
+    (entityType.includes("worker") ||
+      entityType.includes("support_worker") ||
+      entityType === "user")
   ) {
     const resolvedName = targetName || actorName;
     return `${resolvedName} updated their profile`;
@@ -148,6 +150,110 @@ function Field({ label, value }) {
   );
 }
 
+function formatSupportSessionTitle(serviceType) {
+  if (!serviceType?.trim()) {
+    return "Support session";
+  }
+  return serviceType
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function formatRoutineDayLabels(keys) {
+  if (!keys?.length) {
+    return "—";
+  }
+  const map = Object.fromEntries(ROUTINE_DAYS.map((d) => [d.key, d.label]));
+  return keys.map((k) => map[k] || k).join(", ");
+}
+
+function buildSupportSessionsList(shifts, assignments) {
+  const shiftItems = shifts.map((s) => ({
+    recordType: "shift",
+    sortKey: new Date(s.shiftDate).getTime(),
+    id: s._id.toString(),
+    supportTitle: formatSupportSessionTitle(s.serviceType),
+    serviceType: s.serviceType,
+    shiftDate: s.shiftDate ? new Date(s.shiftDate).toISOString() : null,
+    dateRangeStart: null,
+    dateRangeEnd: null,
+    routineDayKeys: [],
+    routineDaysLabel: null,
+    supportDescription: "",
+    startTime: s.startTime,
+    endTime: s.endTime,
+    location: s.location || "",
+    status: s.status,
+    approvalStatus: s.approvalStatus,
+    createdAt: s.createdAt ? new Date(s.createdAt).toISOString() : null,
+    updatedAt: s.updatedAt ? new Date(s.updatedAt).toISOString() : null,
+    worker: s.workerUserId
+      ? {
+          firstName: s.workerUserId.firstName || "",
+          lastName: s.workerUserId.lastName || "",
+          email: s.workerUserId.email || "",
+          phone: s.workerUserId.phone || "",
+        }
+      : null,
+    careManager: s.careManagerUserId
+      ? {
+          firstName: s.careManagerUserId.firstName || "",
+          lastName: s.careManagerUserId.lastName || "",
+          email: s.careManagerUserId.email || "",
+          phone: s.careManagerUserId.phone || "",
+        }
+      : null,
+  }));
+
+  const assignmentItems = assignments.map((a) => ({
+    recordType: "assignment",
+    sortKey: new Date(a.startDate).getTime(),
+    id: a._id.toString(),
+    supportTitle:
+      String(a.supportTitle ?? "")
+        .trim()
+        .slice(0, 500) || "Support arrangement",
+    serviceType: null,
+    shiftDate: null,
+    dateRangeStart: a.startDate ? new Date(a.startDate).toISOString() : null,
+    dateRangeEnd: a.endDate ? new Date(a.endDate).toISOString() : null,
+    routineDayKeys: Array.isArray(a.routineDayKeys) ? a.routineDayKeys : [],
+    routineDaysLabel: formatRoutineDayLabels(a.routineDayKeys),
+    supportDescription: String(a.supportDescription ?? "").trim().slice(0, 8000),
+    startTime: a.routineStartTime || "",
+    endTime: a.routineEndTime || "",
+    location: "",
+    status: a.status,
+    approvalStatus: null,
+    createdAt: a.createdAt ? new Date(a.createdAt).toISOString() : null,
+    updatedAt: a.updatedAt ? new Date(a.updatedAt).toISOString() : null,
+    worker: a.workerUserId
+      ? {
+          firstName: a.workerUserId.firstName || "",
+          lastName: a.workerUserId.lastName || "",
+          email: a.workerUserId.email || "",
+          phone: a.workerUserId.phone || "",
+        }
+      : null,
+    careManager: a.careManagerUserId
+      ? {
+          firstName: a.careManagerUserId.firstName || "",
+          lastName: a.careManagerUserId.lastName || "",
+          email: a.careManagerUserId.email || "",
+          phone: a.careManagerUserId.phone || "",
+        }
+      : null,
+  }));
+
+  const merged = [...shiftItems, ...assignmentItems]
+    .sort((x, y) => x.sortKey - y.sortKey)
+    .map(({ sortKey: _s, ...rest }) => rest);
+
+  return JSON.parse(JSON.stringify(merged));
+}
+
 export default async function ParticipantProfilePage({ params }) {
   const user = await requireRoles([
     ROLES.COMPANY_ADMIN,
@@ -174,14 +280,17 @@ export default async function ParticipantProfilePage({ params }) {
   }
 
   const now = new Date();
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
   const [
     plan,
     budgets,
     upcomingShifts,
+    activeSupportAssignments,
     recentShiftNotes,
     incidents,
     documents,
-    assignments,
     participantLogs,
   ] = await Promise.all([
     ParticipantPlan.findOne({
@@ -202,8 +311,20 @@ export default async function ParticipantProfilePage({ params }) {
       shiftDate: { $gte: now },
     })
       .sort({ shiftDate: 1, startTime: 1 })
-      .limit(8)
-      .populate("workerUserId", "firstName lastName")
+      .limit(60)
+      .populate("workerUserId", "firstName lastName email phone")
+      .populate("careManagerUserId", "firstName lastName email phone")
+      .lean(),
+    Assignment.find({
+      companyId: companyObjectId,
+      participantId: participantObjectId,
+      status: "active",
+      endDate: { $gte: startOfToday },
+    })
+      .sort({ startDate: 1 })
+      .limit(60)
+      .populate("workerUserId", "firstName lastName email phone")
+      .populate("careManagerUserId", "firstName lastName email phone")
       .lean(),
     ShiftNote.find({ companyId: companyObjectId })
       .sort({ submittedAt: -1 })
@@ -228,15 +349,6 @@ export default async function ParticipantProfilePage({ params }) {
     })
       .sort({ createdAt: -1 })
       .limit(20)
-      .lean(),
-    Assignment.find({
-      companyId: companyObjectId,
-      participantId: participantObjectId,
-      status: "active",
-    })
-      .sort({ createdAt: -1 })
-      .limit(20)
-      .populate("workerUserId", "firstName lastName")
       .lean(),
     AuditLog.find({
       companyId: companyObjectId,
@@ -273,12 +385,6 @@ export default async function ParticipantProfilePage({ params }) {
     (sum, note) => sum + Number(note.expenseAmount || 0),
     0,
   );
-  const assignedWorkers = assignments
-    .map((item) =>
-      `${item.workerUserId?.firstName || ""} ${item.workerUserId?.lastName || ""}`.trim(),
-    )
-    .filter(Boolean);
-
   const fullName =
     `${participant.firstName || ""} ${participant.lastName || ""}`.trim();
 
@@ -301,7 +407,8 @@ export default async function ParticipantProfilePage({ params }) {
                     : "Participant digital profile"}
                 </p>
                 <p className="mt-1 text-xs text-violet-100/90">
-                  NDIS: {participant.ndisNumber} · ID: {participant._id?.toString()}
+                  NDIS: {participant.ndisNumber} · ID:{" "}
+                  {participant._id?.toString()}
                 </p>
               </div>
             </div>
@@ -315,71 +422,12 @@ export default async function ParticipantProfilePage({ params }) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Controls</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#personal-medical">
-              <Pencil className="h-4 w-4" />
-              Edit personal and care details
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#funding-management">
-              <Pencil className="h-4 w-4" />
-              Edit funding and service details
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#participant-logs">
-              <FileClock className="h-4 w-4" />
-              View participant logs
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#worker-assignment">
-              <UserPlus className="h-4 w-4" />
-              {assignments.length === 0
-                ? "Assign support worker"
-                : "View assigned support workers"}
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#shift-notes">
-              <NotebookText className="h-4 w-4" />
-              View shift notes
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#incident-history">
-              <Siren className="h-4 w-4" />
-              View incident reports
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="justify-start">
-            <Link href="#expenses">
-              <CircleDollarSign className="h-4 w-4" />
-              View expenses
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card id="personal-medical">
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
-          <CardTitle>{fullName || "Participant"}</CardTitle>
-          <Badge
-            variant={participant.status === "active" ? "success" : "warning"}
-          >
-            {participant.status}
-          </Badge>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <h3 className="text-base font-semibold">
-            Essential Personal & Medical Identification
-          </h3>
+      <ParticipantProfileAccordion>
+        <ParticipantProfileQuickControls participantId={participantId} />
+        <ParticipantProfileAccordionSection
+          sectionId="personal-medical"
+          title="Essential Personal & Medical Identification"
+        >
           <div className="grid gap-3 md:grid-cols-2">
             <Field label="Participant ID" value={participant._id?.toString()} />
             <Field label="NDIS Number" value={participant.ndisNumber} />
@@ -398,7 +446,10 @@ export default async function ParticipantProfilePage({ params }) {
             <Field
               label="Medical Alerts & Risks"
               value={
-                [...(participant.medicalAlerts || []), ...(participant.highRiskFlags || [])]
+                [
+                  ...(participant.medicalAlerts || []),
+                  ...(participant.highRiskFlags || []),
+                ]
                   .filter(Boolean)
                   .join(", ") ||
                 participant.epilepsyProtocol ||
@@ -410,28 +461,26 @@ export default async function ParticipantProfilePage({ params }) {
             <Field label="Address" value={participant.address} />
             <Field label="Created" value={formatDate(participant.createdAt)} />
           </div>
-        </CardContent>
-      </Card>
+        </ParticipantProfileAccordionSection>
 
-      <Card id="funding-management">
-        <CardHeader>
-          <CardTitle>Emergency Contacts</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
+        <ParticipantProfileAccordionSection
+          sectionId="emergency-contacts"
+          title="Emergency Contacts"
+          contentClassName="grid gap-3 md:grid-cols-3"
+        >
           <Field label="Name" value={participant.emergencyContact?.name} />
           <Field label="Phone" value={participant.emergencyContact?.phone} />
           <Field
             label="Relationship"
             value={participant.emergencyContact?.relationship}
           />
-        </CardContent>
-      </Card>
+        </ParticipantProfileAccordionSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Funding & Service Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <ParticipantProfileAccordionSection
+          sectionId="funding-management"
+          title="Funding & Service Management"
+          contentClassName="space-y-4"
+        >
           <div className="grid gap-3 md:grid-cols-3">
             <Field label="Plan Start" value={formatDate(plan?.planStart)} />
             <Field label="Plan End" value={formatDate(plan?.planEnd)} />
@@ -537,14 +586,13 @@ export default async function ParticipantProfilePage({ params }) {
               fallback="No service agreement versions uploaded yet."
             />
           </div>
-        </CardContent>
-      </Card>
+        </ParticipantProfileAccordionSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Care & Goal Documentation</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <ParticipantProfileAccordionSection
+          sectionId="care-documentation"
+          title="Care & Goal Documentation"
+          contentClassName="space-y-4"
+        >
           <div id="shift-notes">
             <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
               Participant Goals
@@ -625,124 +673,36 @@ export default async function ParticipantProfilePage({ params }) {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </ParticipantProfileAccordionSection>
 
-      <Card id="worker-assignment">
-        <CardHeader>
-          <CardTitle>Operational & Administrative Records</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              Upcoming Appointments
-            </p>
-            {upcomingShifts.length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                No upcoming appointments are scheduled.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {upcomingShifts.map((shift) => {
-                  const workerName =
-                    `${shift.workerUserId?.firstName || ""} ${shift.workerUserId?.lastName || ""}`.trim();
-                  return (
-                    <div
-                      key={shift._id}
-                      className="rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-800"
-                    >
-                      <p className="font-medium">
-                        {formatDate(shift.shiftDate)} · {shift.startTime} -{" "}
-                        {shift.endTime}
-                      </p>
-                      <p className="text-zinc-600 dark:text-zinc-400">
-                        {shift.serviceType} ·{" "}
-                        {workerName || "Unassigned worker"}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
+        <ParticipantProfileAccordionSection
+          sectionId="worker-assignment"
+          title="Upcoming support sessions"
+          contentClassName="space-y-4"
+        >
+          <ParticipantSupportSessionsSection
+            participantId={participantId}
+            sessions={buildSupportSessionsList(
+              upcomingShifts,
+              activeSupportAssignments,
             )}
-          </div>
+          />
+        </ParticipantProfileAccordionSection>
 
+        <ParticipantProfileAccordionSection
+          sectionId="participant-logs"
+          title="Participant Logs & Audit Timeline"
+          contentClassName="space-y-3"
+        >
           <div className="grid gap-3 md:grid-cols-2">
             <Field
-              label="Staff Ratios"
-              value={
-                participant.staffRatio
-                  ? `${participant.staffRatio} required`
-                  : `${assignments.length} active worker assignment(s). Ratio not recorded`
-              }
+              label="Created At"
+              value={formatDateTime(participant.createdAt)}
             />
             <Field
-              label="Active Worker Assignments"
-              value={assignments.length.toString()}
+              label="Last Updated"
+              value={formatDateTime(participant.updatedAt)}
             />
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              Assigned Support Workers
-            </p>
-            <ListOrFallback
-              items={assignedWorkers}
-              fallback="No active support worker assignment for this participant."
-            />
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              Document Library
-            </p>
-            {documents.length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                No participant documents uploaded yet.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {documents.map((doc) => (
-                  <div
-                    key={doc._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-800"
-                  >
-                    <div>
-                      <p className="font-medium">{doc.documentType}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Uploaded {formatDate(doc.createdAt)} ·{" "}
-                        {doc.verificationStatus}
-                      </p>
-                    </div>
-                    {doc.fileUrl ? (
-                      <Link
-                        href={doc.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline dark:text-blue-400"
-                      >
-                        Open file
-                      </Link>
-                    ) : (
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        No file URL
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card id="participant-logs">
-        <CardHeader>
-          <CardTitle>Participant Logs & Audit Timeline</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid gap-3 md:grid-cols-2">
-            <Field label="Created At" value={formatDateTime(participant.createdAt)} />
-            <Field label="Last Updated" value={formatDateTime(participant.updatedAt)} />
           </div>
           {participantLogs.length === 0 ? (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -782,17 +742,22 @@ export default async function ParticipantProfilePage({ params }) {
               </table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </ParticipantProfileAccordionSection>
 
-      <Card id="expenses">
-        <CardHeader>
-          <CardTitle>Expenses</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
+        <ParticipantProfileAccordionSection
+          sectionId="expenses"
+          title="Expenses"
+          contentClassName="space-y-3"
+        >
           <div className="grid gap-3 md:grid-cols-2">
-            <Field label="Total Submitted Expenses" value={formatCurrency(totalExpenses)} />
-            <Field label="Expense Entries" value={expenseNotes.length.toString()} />
+            <Field
+              label="Total Submitted Expenses"
+              value={formatCurrency(totalExpenses)}
+            />
+            <Field
+              label="Expense Entries"
+              value={expenseNotes.length.toString()}
+            />
           </div>
           {expenseNotes.length === 0 ? (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -809,15 +774,18 @@ export default async function ParticipantProfilePage({ params }) {
                     {formatDateTime(note.submittedAt)}
                   </p>
                   <p className="mt-1 font-medium">
-                    {formatCurrency(note.expenseAmount)} · {note.shiftId?.serviceType || "Shift"}
+                    {formatCurrency(note.expenseAmount)} ·{" "}
+                    {note.shiftId?.serviceType || "Shift"}
                   </p>
-                  <p className="text-zinc-600 dark:text-zinc-400">{note.noteText}</p>
+                  <p className="text-zinc-600 dark:text-zinc-400">
+                    {note.noteText}
+                  </p>
                 </div>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </ParticipantProfileAccordionSection>
+      </ParticipantProfileAccordion>
     </div>
   );
 }

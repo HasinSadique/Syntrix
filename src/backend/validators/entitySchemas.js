@@ -54,6 +54,16 @@ export const participantBudgetListQuerySchema = paginationQuerySchema.extend({
     categoryName: z.string().trim().optional(),
 });
 
+const routineDayKeySchema = z.enum([
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+]);
+
 export const assignmentCreateSchema = z.object({
     companyId: objectIdSchema.optional(),
     participantId: objectIdSchema,
@@ -64,6 +74,19 @@ export const assignmentCreateSchema = z.object({
     status: z
         .enum(["active", "paused", "completed", "cancelled"])
         .default("active"),
+    supportTitle: z.string().trim().optional(),
+    supportDescription: z.string().trim().optional(),
+    routineDayKeys: z.array(routineDayKeySchema).optional(),
+    routineStartTime: z
+        .string()
+        .trim()
+        .regex(/^\d{2}:\d{2}$/, "routineStartTime must be HH:mm")
+        .optional(),
+    routineEndTime: z
+        .string()
+        .trim()
+        .regex(/^\d{2}:\d{2}$/, "routineEndTime must be HH:mm")
+        .optional(),
 });
 
 export const assignmentListQuerySchema = paginationQuerySchema.extend({
@@ -389,4 +412,26 @@ export const userCreateSchema = z
 export const supportWorkerContactUpdateSchema = z.object({
     phone: z.string().trim().max(40).optional(),
     address: z.string().trim().max(500).optional(),
+});
+
+const availabilityDaySchema = z.object({
+    enabled: z.boolean(),
+    start: z.string().regex(/^\d{2}:\d{2}$/),
+    end: z.string().regex(/^\d{2}:\d{2}$/),
+});
+
+export const supportWorkerAvailabilityUpdateSchema = z.object({
+    repeatMode: z.enum(["weekly", "date-range"]),
+    rangeStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    rangeEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    savedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    days: z.object({
+        monday: availabilityDaySchema,
+        tuesday: availabilityDaySchema,
+        wednesday: availabilityDaySchema,
+        thursday: availabilityDaySchema,
+        friday: availabilityDaySchema,
+        saturday: availabilityDaySchema,
+        sunday: availabilityDaySchema,
+    }),
 });

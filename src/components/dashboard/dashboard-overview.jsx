@@ -24,9 +24,7 @@ export function DashboardOverview({ user, stats }) {
     <div className="space-y-6">
       <div className="space-y-2">
         {/* <Badge>{ROLE_LABELS[user.role] || user.role}</Badge> */}
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Operations Dashboard
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Unified visibility for participants, workforce, incidents, and
           compliance.

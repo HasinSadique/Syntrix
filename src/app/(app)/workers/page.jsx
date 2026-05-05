@@ -49,13 +49,18 @@ export default async function WorkersPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-semibold">Support Workers</h2>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Support worker profiles and availability overview.
-        </p>
+        <h2 className="text-2xl font-semibold">
+          Support Workers Management Portal
+        </h2>
+        {/* <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Support worker management portal
+        </p> */}
       </div>
 
-      <WorkerListTable workers={workersPayload} canViewProfile={canViewProfile} />
+      <WorkerListTable
+        workers={workersPayload}
+        canViewProfile={canViewProfile}
+      />
     </div>
   );
 }

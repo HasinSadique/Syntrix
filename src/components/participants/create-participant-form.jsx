@@ -113,7 +113,7 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
           </p>
         ) : !isExpanded ? (
           <Button type="button" onClick={() => setIsExpanded(true)}>
-            Add participant
+            Onboard new participant
           </Button>
         ) : (
           <form className="grid gap-3 md:grid-cols-2" onSubmit={handleSubmit}>
@@ -137,7 +137,10 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
               placeholder="Preferred name"
               value={form.preferredName}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, preferredName: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  preferredName: event.target.value,
+                }))
               }
             />
             <Input
@@ -198,28 +201,40 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
               placeholder="Primary disability"
               value={form.primaryDisability}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, primaryDisability: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  primaryDisability: event.target.value,
+                }))
               }
             />
             <Input
               placeholder="Secondary disability"
               value={form.secondaryDisability}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, secondaryDisability: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  secondaryDisability: event.target.value,
+                }))
               }
             />
             <Input
               placeholder="Emergency contact name"
               value={form.emergencyContactName}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, emergencyContactName: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  emergencyContactName: event.target.value,
+                }))
               }
             />
             <Input
               placeholder="Emergency contact phone"
               value={form.emergencyContactPhone}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, emergencyContactPhone: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  emergencyContactPhone: event.target.value,
+                }))
               }
             />
             <Input
@@ -235,7 +250,10 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
             <select
               value={form.managementType}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, managementType: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  managementType: event.target.value,
+                }))
               }
               className="h-10 rounded-xl border border-zinc-300 bg-white px-3 text-sm dark:border-zinc-700 dark:bg-zinc-900"
             >
@@ -256,7 +274,10 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
               className="md:col-span-2"
               value={form.medicalAlerts}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, medicalAlerts: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  medicalAlerts: event.target.value,
+                }))
               }
             />
             <Input
@@ -264,7 +285,10 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
               className="md:col-span-2"
               value={form.highRiskFlags}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, highRiskFlags: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  highRiskFlags: event.target.value,
+                }))
               }
             />
             <Input
@@ -272,7 +296,10 @@ export function CreateParticipantForm({ canCreate, activeCompanyId }) {
               className="md:col-span-2"
               value={form.epilepsyProtocol}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, epilepsyProtocol: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  epilepsyProtocol: event.target.value,
+                }))
               }
             />
             <Input

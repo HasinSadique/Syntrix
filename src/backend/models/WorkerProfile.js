@@ -43,6 +43,9 @@ const workerProfileSchema = new mongoose.Schema(
       type: String,
       enum: ["fortnightly_48", "unlimited"]
     },
+    availabilitySchedule: {
+      type: mongoose.Schema.Types.Mixed
+    },
     visaType: {
       type: String,
       trim: true,

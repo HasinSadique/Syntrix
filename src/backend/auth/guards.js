@@ -91,12 +91,14 @@ export async function getCurrentUser() {
             hoursRestriction: wp.hoursRestriction || "fortnightly_48",
             visaType: wp.visaType || "",
             documentReviews: mergeDocumentReviews(wp.documentReviews),
+            availabilitySchedule: wp.availabilitySchedule || null,
           }
         : {
             residentialStatus: "australian_citizen",
             hoursRestriction: "fortnightly_48",
             visaType: "",
             documentReviews: mergeDocumentReviews(null),
+            availabilitySchedule: null,
           };
     }
 

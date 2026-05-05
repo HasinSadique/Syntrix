@@ -1,7 +1,9 @@
+import { ROLES } from "@/backend/constants/roles";
 import { connectToDatabase } from "@/backend/db/mongoose";
 import { Assignment, Participant, User } from "@/backend/models";
 import { createAuditLog } from "@/backend/services/auditLogService";
 import {
+  createServiceError,
   ensureEntityInCompany,
   resolvePagination,
   resolveRequiredCompanyId,
@@ -85,7 +87,12 @@ export async function createAssignment({ currentUser, payload }) {
     careManagerUserId: toObjectId(payload.careManagerUserId, "careManagerUserId"),
     startDate: payload.startDate,
     endDate: payload.endDate,
-    status: payload.status
+    status: payload.status,
+    supportTitle: payload.supportTitle,
+    supportDescription: payload.supportDescription,
+    routineDayKeys: payload.routineDayKeys,
+    routineStartTime: payload.routineStartTime,
+    routineEndTime: payload.routineEndTime
   });
 
   await createAuditLog({
@@ -105,4 +112,53 @@ export async function createAssignment({ currentUser, payload }) {
   });
 
   return toPlainDocument(assignment);
+}
+
+const ASSIGNMENT_DELETE_ROLES = new Set([
+  ROLES.SUPER_ADMIN,
+  ROLES.COMPANY_ADMIN,
+  ROLES.STATE_MANAGER,
+  ROLES.CARE_MANAGER,
+]);
+
+export async function deleteAssignment({ currentUser, assignmentId, participantId }) {
+  await connectToDatabase();
+
+  if (!ASSIGNMENT_DELETE_ROLES.has(currentUser.role)) {
+    throw createServiceError(
+      403,
+      "You do not have permission to delete support assignments",
+    );
+  }
+
+  const companyId = resolveRequiredCompanyId(currentUser, null);
+  const assignmentObjectId = toObjectId(assignmentId, "assignmentId");
+
+  const filter = { _id: assignmentObjectId, companyId };
+  if (participantId) {
+    filter.participantId = toObjectId(participantId, "participantId");
+  }
+
+  const assignment = await Assignment.findOne(filter).lean();
+  if (!assignment) {
+    throw createServiceError(404, "Support assignment not found");
+  }
+
+  await Assignment.deleteOne({ _id: assignmentObjectId });
+
+  await createAuditLog({
+    currentUser,
+    payload: {
+      companyId: companyId.toString(),
+      action: "assignment.delete",
+      entityType: "assignment",
+      entityId: assignmentObjectId.toString(),
+      newValue: {
+        participantId: assignment.participantId?.toString?.() || assignment.participantId,
+        supportTitle: assignment.supportTitle,
+      },
+    },
+  });
+
+  return { deleted: true };
 }

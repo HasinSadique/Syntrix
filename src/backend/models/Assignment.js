@@ -39,6 +39,26 @@ const assignmentSchema = new mongoose.Schema(
       enum: ["active", "paused", "completed", "cancelled"],
       default: "active",
       index: true
+    },
+    supportTitle: {
+      type: String,
+      trim: true
+    },
+    supportDescription: {
+      type: String,
+      trim: true
+    },
+    routineDayKeys: {
+      type: [String],
+      default: undefined
+    },
+    routineStartTime: {
+      type: String,
+      trim: true
+    },
+    routineEndTime: {
+      type: String,
+      trim: true
     }
   },
   {
